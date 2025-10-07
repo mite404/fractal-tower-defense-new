@@ -22,7 +22,7 @@ Notes:
 */
 
 export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
-	console.log("Validating Path In:");
+	console.log("----------------------------------- \nValidating Path In: \n ");
 	printGrid(grid);
 
 	const entranceCell = grid[entrance.x][entrance.y];

@@ -10,13 +10,13 @@ import { hasValidPath } from "./validpath.ts";
 
 const entrance: Cell = {
 	x: 0,
-	y: 5,
+	y: 0,
 	type: "empty",
 };
 
 const exit: Cell = {
 	x: 9,
-	y: 5,
+	y: 9,
 	type: "empty",
 };
 
@@ -68,3 +68,19 @@ for (let colIndex = 1; colIndex <= 9; colIndex++) {
 
 
 hasValidPath(testGrid5, entrance, exit);
+
+
+let testGrid6 = createTestGrid();
+//make path down colIndex 5
+for (let rowIndex = 0; rowIndex <= 9; rowIndex++) {
+	for (let colIndex = 0; colIndex <= 9; colIndex++) {
+		testGrid6 = setCell(testGrid6, rowIndex, colIndex, "path");
+	}
+}
+
+for (let colIndex = 0; colIndex <= 9; colIndex++) {
+	testGrid6 = setCell(testGrid6, 5, colIndex, "empty");
+}
+
+
+hasValidPath(testGrid6, entrance, exit);

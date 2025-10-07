@@ -95,7 +95,7 @@ export const initialPlayer: Player = {
     levelPieces: []
 }
 
-function createEmptyGrid(): Grid {
+export function createEmptyGrid(): Grid {
     return Array.from({ length: 10 }, (_, y) =>
         Array.from({ length: 10 }, (_, x) => ({
             x,

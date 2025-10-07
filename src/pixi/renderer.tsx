@@ -1,10 +1,12 @@
 import { Application, Assets, Container, Sprite, Graphics } from 'pixi.js';
-import type { Cell, GameState, Grid } from '../type';
+import { createEmptyGrid, type Cell, type GameState, type Grid } from '../type';
 import type { Enemy } from '../type';
+import { addInput } from '../input';
 
 
 
-
+let dummyTexture
+let displayGrid: Graphics[][]
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   // TODO: pull out any init stuff from the render function and put it in here.
@@ -20,8 +22,31 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
     resizeTo: window
   });
 
+  dummyTexture = await Assets.load('ENEMY_dummy.png');
+
+
   // Append the application canvas to the document body
   document.body.appendChild(app.canvas);
+
+  // Create and add a container to the stage
+  const container = new Container();
+  app.stage.addChild(container);
+  displayGrid = createEmptyGrid().map((row, rowIndex) => {
+    return row.map((cell, colIndex) => {
+      const square = new Graphics()
+        .rect((colIndex * 60), (rowIndex * 60), 60, 60)
+        .fill(0xAAAAAA)
+        .stroke(0x00ff00)
+      square.eventMode = 'static';
+
+      square.on('pointerdown', (event) => {
+        addInput({ inputType: "cellClick", cellX: rowIndex, cellY: colIndex })
+        console.log("adding to input queue")
+      });
+      container.addChild(square)
+      return square
+    })
+  })
 
   return app
 }
@@ -29,7 +54,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
 // TODO: I am suspicious of initializing the application on every render.
 // PROBABLY I should have some initialization which occurs separately from every render.
-export async function render(app: Application, gameState: GameState): Promise<Application> {
+export function render(app: Application, gameState: GameState) {
 
   // render the board
   renderBoard(app, gameState)
@@ -94,33 +119,14 @@ export async function render(app: Application, gameState: GameState): Promise<Ap
 
 
 export function renderBoard(app: Application, gameState: GameState): Application {
-
-  const grid = gameState.grid
-  // Create and add a container to the stage
-  const container = new Container();
-  app.stage.addChild(container);
-  // Render a grid of 10x10 tiles for our grid
-  grid.forEach((row, rowIndex) => {
-    row.forEach((cell, colIndex) => {
-      const square = new Graphics()
-        .rect((rowIndex * 60), (colIndex * 60), 60, 60)
-        .fill(0x4C)
-        .stroke(0x00ff00)
-      container.addChild(square)
+  gameState.grid.forEach((row, rowIdx) => {
+    row.forEach((cell, colIdx) => {
+      const square = displayGrid[rowIdx][colIdx]
+      if (cell.type === 'path') {
+        console.log("coloring as a path ", cell)
+        square.tint = 0xFF0000
+      }
     })
   })
-
-  const row = 3
-  const col = 5
-
-  // Load the enemy texture
-  // TODO: load the texture outside
-  const texture = await Assets.load('ENEMY_dummy.png');
-  const enemyDummy = new Sprite(texture)
-  enemyDummy.x = col * 60
-  enemyDummy.y = row * 60
-  container.addChild(enemyDummy)
-
   return app
-
 }

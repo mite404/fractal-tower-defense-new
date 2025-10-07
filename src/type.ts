@@ -1,3 +1,4 @@
+import { startingHand } from "./types/pieces";
 
 export type GameState = {
     player: Player;
@@ -23,11 +24,11 @@ export type Player = {
     hand: Piece[]; // pieces in the player's hand
 }
 
-export type CellType = "empty" | "path" | 'tower' | 'blocked'
+export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' |'exit'
 
 export type Cell = {
-    x: number;
-    y: number;
+    x: number | null;
+    y: number | null;
     type: CellType;
     occupiedBy?: string;
     terrain?: string //potential different effects later
@@ -37,7 +38,7 @@ export type Grid = Cell[][]
 
 export type Piece = {
     id: string;
-    shape: Piece[][];
+    shape: Cell[][];
     isPlaced: boolean;
     rotation: 0 | 90 | 180 | 270;
     flipped: boolean;
@@ -91,8 +92,9 @@ export const initialPlayer: Player = {
     maxHealth: 100,
     armor: 0,
     gold: 100,
-    allPieces: [],
-    levelPieces: []
+    library: startingHand(),
+    deck: startingHand(),
+    hand: startingHand()
 }
 
 export function createEmptyGrid(): Grid {
@@ -115,5 +117,5 @@ export const initialGameState: GameState = {
     pieces: [],
     winlose: 'Playing',
     validPath: false,
-    path: []
+    longestPath: []
 }

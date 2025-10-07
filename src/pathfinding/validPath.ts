@@ -1,6 +1,5 @@
-import type { Cell, Grid,  } from "../type.ts";
-import { printGrid } from "./helperPath.ts";
-
+import type { Cell, Grid } from "../type.ts";
+import { getNeighbors, printGrid } from "./helperPath.ts";
 
 /*
 DFS Pathfinding :
@@ -22,19 +21,42 @@ Notes:
 - This setup also naturally supports extension to finding the longest path later via backtracking.
 */
 
-
-export function hasValidPath(grid : Grid, entrance: Cell, exit: Cell): boolean {
-	console.log("Validating Path In:")
+export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
+	console.log("Validating Path In:");
 	printGrid(grid);
 
-	let visted = new Set<Cell>();
+	const visited = new Set<string>(); //string that can be compared for uniqueness
+	const path: Cell[] = []; // track current path for debugging
 
-	function dfs(node : Cell): boolean {
-		visted.add(node) //does not add duplicates
+	function dfs(node: Cell): boolean {
+		path.push(node);
+		visited.add(`${node.x},${node.y}`);
+
+		console.log(
+			`Visiting: (${node.x},${node.y}) | Current path: ${path
+				.map((c) => `(${c.x},${c.y})`)
+				.join(" -> ")}`
+		);
+
+		if (node.x === exit.x && node.y === exit.y) {
+			console.log("Exit reached! Valid path found:");
+			console.log(path.map((c) => `(${c.x},${c.y})`).join(" -> "));
+			return true;
+		}
+
+		for (const neighbor of getNeighbors(grid, node)) {
+			if (
+				neighbor.type === "path" &&
+				!visited.has(`${neighbor.x},${neighbor.y}`)
+			) {
+				if (dfs(neighbor)) return true; //recurse through neighbors looking for exit
+			}
+		}
 		
-
-		//get neighbors
-		//call dfs on neighbers
-
+		//deadend
+		path.pop(); 
+		return false;
 	}
+
+	return dfs(entrance);
 }

@@ -5,7 +5,5 @@ import './index.css'
 import { GameCanvas } from './GameCanvas.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <GameCanvas />
-  </StrictMode>,
+  <GameCanvas />
 )

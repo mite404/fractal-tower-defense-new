@@ -1,14 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { initApp, initGame, render } from './pixi/renderer'
 import { initialGameState } from './type';
 import type { Application } from 'pixi.js';
+import { loop } from './gameStateMachine';
 
+let setup = false
 export function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const appRef = useRef<Application>(null)
-  // const gameBoard = useGameStore((state) => state.gameBoard);
-
-  const gameState = initialGameState
+  const [gameState, setGameState] = useState(initialGameState)
 
   async function setupPixi(canvas: HTMLCanvasElement) {
     if (!appRef.current) {
@@ -24,6 +24,22 @@ export function GameCanvas() {
     }
 
   }, [canvasRef])
+
+  useEffect(() => {
+    if (setup) {
+      return
+    }
+    setup = true
+    console.log("setting up game loop")
+    setInterval(() => {
+      setGameState((prev) => {
+        const updated = loop(prev)
+        console.log("prevState === updated?", prev === updated)
+        console.log(updated.wave)
+        return updated
+      })
+    }, 16)
+  }, [])
 
   // RE-RENDERS the app, whenever state changes
   useEffect(() => {

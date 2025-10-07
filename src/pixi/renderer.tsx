@@ -51,16 +51,14 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   return app
 }
 
-
 // TODO: I am suspicious of initializing the application on every render.
 // PROBABLY I should have some initialization which occurs separately from every render.
 export function render(app: Application, gameState: GameState) {
 
   // render the board
   renderBoard(app, gameState)
-  // render hand
-  // render pieces
-  // render towers
+  // TODO render piece sidebar
+
   // render enemies
   // render projectiles
   // 
@@ -123,7 +121,6 @@ export function renderBoard(app: Application, gameState: GameState): Application
     row.forEach((cell, colIdx) => {
       const square = displayGrid[rowIdx][colIdx]
       if (cell.type === 'path') {
-        console.log("coloring as a path ", cell)
         square.tint = 0xFF0000
       }
     })

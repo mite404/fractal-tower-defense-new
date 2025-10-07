@@ -37,7 +37,7 @@ export type Grid = Cell[][]
 
 export type Piece = {
     id: string;
-    shape: Piece[][];
+    shape: Cell[][];
     isPlaced: boolean;
     rotation: 0 | 90 | 180 | 270;
     flipped: boolean;

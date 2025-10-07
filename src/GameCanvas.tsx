@@ -34,8 +34,6 @@ export function GameCanvas() {
     setInterval(() => {
       setGameState((prev) => {
         const updated = loop(prev)
-        console.log("prevState === updated?", prev === updated)
-        console.log(updated.wave)
         return updated
       })
     }, 16)

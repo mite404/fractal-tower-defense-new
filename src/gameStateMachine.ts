@@ -10,6 +10,7 @@ export function loop(gameState: GameState): GameState {
   }
   const newGameState = updateGridWithClicks(inputs, gameState)
   newGameState.wave += 1
+
   return newGameState
 }
 
@@ -19,8 +20,6 @@ function updateGridWithClicks(inputs: InputEvent[], gameState: GameState): GameS
     if (event.inputType === 'cellClick') {
       const cellClickEvent = event as CellClick
       newGameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type = 'path'
-      console.log(`updated [${cellClickEvent.cellX}][${cellClickEvent.cellY}]:`,
-        newGameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type)
     }
   }
 

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { initApp, initGame, render } from './pixi/renderer'
-import { initialGameState } from './type';
+// import { initialGameState } from './type';
 import type { Application } from 'pixi.js';
 import { loop } from './gameStateMachine';
+import { initialGameState } from './gameStateMachine';
 
 let setup = false
 export function GameCanvas() {

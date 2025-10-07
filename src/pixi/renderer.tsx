@@ -6,8 +6,9 @@ import { loadTextures } from "./textures.ts"
 import { renderInventory } from './inventoryRender.tsx';
 
 
-let dummyTexture
 let displayGrid: Graphics[][]
+let displayEnemy: Container
+let enemySprites = new Map<string, Sprite>()
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   // TODO: pull out any init stuff from the render function and put it in here.
@@ -30,8 +31,12 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
   // Create and add a container to the stage
   const boardContainer = new Container();
+  displayEnemy = new Container()
 
   app.stage.addChild(boardContainer);
+  app.stage.addChild(displayEnemy)
+
+
   displayGrid = createEmptyGrid().map((row, rowIndex) => {
     return row.map((cell, colIndex) => {
       const square = new Graphics()
@@ -49,37 +54,27 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
     })
   })
 
-  app.stage.addChild(boardContainer)
-  console.log('enemyDummyTexture:', enemyDummyTexture)
-  const testEnemy = new Sprite(enemyDummyTexture)
-  testEnemy.x = 60 * 3
-  testEnemy.y = 60 * 3
-  const enemyContainer = new Container
-  enemyContainer.addChild(testEnemy)
-  app.stage.addChild(enemyContainer)
-
   return app
 }
 
 // TODO: I am suspicious of initializing the application on every render.
 // PROBABLY I should have some initialization which occurs separately from every render.
 export function render(app: Application, gameState: GameState) {
-
   // render the board
   renderBoard(app, gameState)
+
   renderInventory(app, gameState)
   // TODO render piece sidebar
 
   // render enemies
-  // render projectiles
-  // 
+  renderEnemies(app, gameState)
 
+  // render projectiles
 
   return app
 };
 
-
-export function renderBoard(app: Application, gameState: GameState): Application {
+function renderBoard(app: Application, gameState: GameState): Application {
   gameState.grid.forEach((row, rowIdx) => {
     row.forEach((cell, colIdx) => {
       const square = displayGrid[rowIdx][colIdx]
@@ -88,5 +83,38 @@ export function renderBoard(app: Application, gameState: GameState): Application
       }
     })
   })
+
+  return app
+}
+
+function renderEnemies(app: Application, gameState: GameState) {
+  console.log('renderEnemies called, enemies:', gameState.enemies)
+  console.log('enemySprites Map size:', enemySprites.size)
+
+  gameState.enemies.forEach(enemy => {
+    console.log('Processing enemy:', enemy.id)
+
+    if (!enemySprites.has(enemy.id)) {
+      console.log('Creating new sprite for:', enemy.id)
+      const sprite = new Sprite(enemyDummyTexture)
+      enemySprites.set(enemy.id, sprite)
+      displayEnemy.addChild(sprite)
+    }
+
+    const sprite = enemySprites.get(enemy.id)!
+    console.log('Setting sprite position:', enemy.currentPosition)
+    sprite.x = enemy.currentPosition.x * 1
+    sprite.y = enemy.currentPosition.x * 1
+  })
+
+  console.log('enemyDummyTexture:', enemyDummyTexture)
+
+  // const testEnemy = new Sprite(enemyDummyTexture)
+
+  // testEnemy.x = 60 * 3
+  // testEnemy.y = 60 * 3
+  // displayEnemy.addChild(testEnemy)
+
+
   return app
 }

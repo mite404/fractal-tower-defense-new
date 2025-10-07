@@ -1,5 +1,5 @@
 import type { Cell, Grid } from "../type.ts";
-import { setCell } from "./helperPath.ts";
+import { createTestGrid, setCell } from "./helperPath.ts";
 import { hasValidPath } from "./validpath.ts";
 
 // To test independently install ts-node locally if you have not:
@@ -7,16 +7,6 @@ import { hasValidPath } from "./validpath.ts";
 // To run the tests:
 // 		bunx ts-node src/pathfinding/testPath.ts
 
-function createTestGrid(): Grid {
-	let newGrid: Grid = [];
-	for (let rowIndex = 0; rowIndex <= 9; rowIndex++) {
-		newGrid.push([]);
-		for (let colIndex = 0; colIndex <= 9; colIndex++) {
-			newGrid = setCell(newGrid, rowIndex, colIndex, "empty");
-		}
-	}
-	return newGrid;
-}
 
 const entrance: Cell = {
 	x: 0,

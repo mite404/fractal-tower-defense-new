@@ -1,5 +1,5 @@
 import type { Cell, Grid } from "../type.ts";
-import { getNeighbors, printGrid } from "./helperPath.ts";
+import { createTestGrid, getNeighbors, printGrid } from "./helperPath.ts";
 
 /*
 DFS Pathfinding :
@@ -40,17 +40,25 @@ export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
 		path.push(node);
 		visited.add(`${node.x},${node.y}`);
 
-		console.log(
-			`Visiting: (${node.x},${node.y}) | Current path: ${path
-				.map((c) => `(${c.x},${c.y})`)
-				.join(" -> ")}`
-		);
+		// DEBUGGING
+		// console.log(
+		// 	`Visiting: (${node.x},${node.y}) | Current path: ${path
+		// 		.map((c) => `(${c.x},${c.y})`)
+		// 		.join(" -> ")}`
+		// );
 
 		if (node.x === exit.x && node.y === exit.y) {
 			console.log("Exit reached! Valid path found:");
 			console.log(path.map((c) => `(${c.x},${c.y})`).join(" -> "));
 
-			
+			const validPathGrid = createTestGrid();
+			//make path down colIndex 5
+
+			for (const coord of path) {
+				validPathGrid[coord.x][coord.y] = { ...coord, type: "path" };
+			}
+
+			printGrid(validPathGrid)
 
 			return true;
 		}

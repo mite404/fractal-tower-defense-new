@@ -17,6 +17,17 @@ export function setCell(
 	return newGrid;
 }
 
+export function createTestGrid(): Grid {
+	let newGrid: Grid = [];
+	for (let rowIndex = 0; rowIndex <= 9; rowIndex++) {
+		newGrid.push([]);
+		for (let colIndex = 0; colIndex <= 9; colIndex++) {
+			newGrid = setCell(newGrid, rowIndex, colIndex, "empty");
+		}
+	}
+	return newGrid;
+}
+
 export function printGrid(grid: Grid) {
 	for (const row of grid) {
 		console.log(row.map((c) => (c.type === "path" ? "🟩" : "⬜")).join(""));

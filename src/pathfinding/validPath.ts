@@ -25,6 +25,14 @@ export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
 	console.log("Validating Path In:");
 	printGrid(grid);
 
+	const entranceCell = grid[entrance.x][entrance.y];
+	const exitCell = grid[exit.x][exit.y];
+
+	if (entranceCell.type !== "path" || exitCell.type !== "path") {
+		console.log("Entrance or exit is not a path cell.");
+		return false;
+	}
+
 	const visited = new Set<string>(); //string that can be compared for uniqueness
 	const path: Cell[] = []; // track current path for debugging
 
@@ -41,6 +49,9 @@ export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
 		if (node.x === exit.x && node.y === exit.y) {
 			console.log("Exit reached! Valid path found:");
 			console.log(path.map((c) => `(${c.x},${c.y})`).join(" -> "));
+
+			
+
 			return true;
 		}
 
@@ -52,9 +63,9 @@ export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
 				if (dfs(neighbor)) return true; //recurse through neighbors looking for exit
 			}
 		}
-		
+
 		//deadend
-		path.pop(); 
+		path.pop();
 		return false;
 	}
 

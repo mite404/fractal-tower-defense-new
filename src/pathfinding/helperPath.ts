@@ -1,6 +1,6 @@
 import type { Cell, CellType, Grid } from "../type";
 
-export function insertCell(
+export function setCell(
 	grid: Grid,
 	xCoordinate: number,
 	yCoordinate: number,

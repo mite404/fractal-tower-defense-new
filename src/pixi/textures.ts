@@ -1,10 +1,10 @@
 import { Assets } from "pixi.js";
 import { render } from "./renderer";
+import type { Enemy } from "../type";
 
 // TODO: test if this actually works idk if this will work.
-export const enemyDummy = await Assets.load('ENEMY_dummy.png');
+export let enemyDummyTexture: Enemy
 
-function loadTextures() {
-  await Assets.load('ENEMY_dummy.png');
-  render()
+export async function loadTextures() {
+  enemyDummyTexture = await Assets.load('ENEMY_dummy.png');
 }

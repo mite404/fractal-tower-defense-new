@@ -3,6 +3,7 @@ import { createEmptyGrid, type Cell, type GameState, type Grid } from '../type';
 import { addInput } from '../input';
 import { enemyDummyTexture } from './textures';
 import { loadTextures } from "./textures.ts"
+import { renderInventory } from './inventoryRender.tsx';
 
 
 let dummyTexture
@@ -66,6 +67,7 @@ export function render(app: Application, gameState: GameState) {
 
   // render the board
   renderBoard(app, gameState)
+  renderInventory(app, gameState)
   // TODO render piece sidebar
 
   // render enemies

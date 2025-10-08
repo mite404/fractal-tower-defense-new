@@ -8,7 +8,8 @@ export type GameState = {
     enemies: Enemy[];
     towers: Tower[];
     pieces: PlacedPiece[]
-    longestPath: PathNode[] // this is the path that the enemies are going to take
+    finalPath: PathNode[] // this is the path that the enemies are going to take
+    selectingFinalPhase: boolean; // flag for when player is choosing final path
     validPath: boolean
     winlose: 'Playing' | 'Win' | 'Lose'
 }
@@ -26,11 +27,14 @@ export type Player = {
 
 export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' |'exit'
 
+export type CellSelectionState = 'unselected' | 'selected' | 'highlighted';
+
 export type Cell = {
     x: number | null; //col horizontal
     y: number | null; //row vertical
     // Grid[y][x] refers to the correct cell
     type: CellType;
+    selectionState?: CellSelectionState; //used during final path selection
     occupiedBy?: string;
     terrain?: string //potential different effects later
 }
@@ -118,5 +122,6 @@ export const initialGameState: GameState = {
     pieces: [],
     winlose: 'Playing',
     validPath: false,
-    longestPath: []
+    finalPath: [],
+    selectingFinalPhase: false,
 }

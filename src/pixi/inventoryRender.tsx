@@ -1,7 +1,7 @@
 import { Graphics, Container, Application, FederatedPointerEvent } from "pixi.js";
 import type { GameState } from "../type";
 import { setupDragAndDrop } from "./dragAndDrop";
-import { boardContainer } from './renderer'
+
 
 
 const inventory = new Container()
@@ -70,7 +70,7 @@ export function renderInventory(app: Application, gameState: GameState): Applica
     // Add to inventory
     inventory.addChild(pieceContainer)
 
-    setupDragAndDrop(app, pieceContainer, boardContainer, inventory)
+    setupDragAndDrop(app, pieceContainer, gameState, piece)
 
     endY += nonEmptyRows * 60 + piecePaddingY
 

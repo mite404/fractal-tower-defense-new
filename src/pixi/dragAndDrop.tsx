@@ -1,99 +1,100 @@
-import { Application, Container, FederatedPointerEvent } from "pixi.js";
+import type { Application, Container, FederatedPointerEvent } from "pixi.js";
+import type { GameState, Piece } from "../type";
+import { canPlacePiece } from "../gameEngine/gameLogic";
 
-export function setupDragAndDrop(
-  app: Application,
-  pieceContainer: Container,
-  boardContainer: Container,
-  inventoryContainer: Container
-) {
+export function setupDragAndDrop(app: Application, piece: Container, gameState:GameState, pieceData:Piece): void {
   const CELL = 60;
   const BOARD_CELLS = 10;
+  const BIAS = 0.33 * CELL; // 2% of a cell: nudges ties up/left (remove/adjust to taste)
 
-  let isDragging = false;
-  let dragOffset = { x: 0, y: 0 };
-  let originContainer: Container | null = null;
-  let originalPosition = { x: 0, y: 0 };
+  let dragging = false;
+  let originParent: Container | null = null;
+  let originPos = { x: 0, y: 0 };
+  let dragOffsetStage = { x: 0, y: 0 };
 
-  function preserveWorldAndReparent(newParent: Container) {
-    const global = pieceContainer.toGlobal({ x: 0, y: 0 });
-    newParent.addChild(pieceContainer);
-    pieceContainer.position = newParent.toLocal(global);
+  function preserveWorldAndReparent(obj: Container, newParent: Container) {
+    const world = obj.parent!.toGlobal(obj.position);
+    newParent.addChild(obj);
+    obj.position.copyFrom(newParent.toLocal(world));
   }
 
-  function revertToOrigin() {
-    preserveWorldAndReparent(originContainer!);
-    pieceContainer.x = originalPosition.x;
-    pieceContainer.y = originalPosition.y;
+  piece.eventMode = "static";
+  piece.cursor = "pointer";
+
+  piece.on("pointerdown", (e: FederatedPointerEvent) => {
+    // guard: only start if actually inside
+    const b = piece.getBounds();
+    if (e.global.x < b.left || e.global.x > b.right || e.global.y < b.top || e.global.y > b.bottom) return;
+
+    dragging = true;
+    originParent = piece.parent!;
+    originPos = { x: piece.x, y: piece.y };
+
+    preserveWorldAndReparent(piece, app.stage);
+
+    const stagePt = app.stage.toLocal(e.global);
+    dragOffsetStage.x = stagePt.x - piece.x;
+    dragOffsetStage.y = stagePt.y - piece.y;
+
+    piece.alpha = 0.8;
+    piece.zIndex = 10_000;
+  });
+
+  piece.on("globalpointermove", (e: FederatedPointerEvent) => {
+    if (!dragging) return;
+    const p = app.stage.toLocal(e.global);
+    piece.position.set(p.x - dragOffsetStage.x, p.y - dragOffsetStage.y);
+  });
+
+  function revert() {
+    if (!originParent) return;
+    preserveWorldAndReparent(piece, originParent);
+    piece.position.set(originPos.x, originPos.y);
+    piece.alpha = 1;
   }
 
-  pieceContainer.on("pointerdown", (event: FederatedPointerEvent) => {
-    isDragging = true;
-    originContainer = pieceContainer.parent!;
-    originalPosition = { x: pieceContainer.x, y: pieceContainer.y };
+  function handleUp(_e: FederatedPointerEvent) {
+    if (!dragging) return;
+    dragging = false;
 
-    preserveWorldAndReparent(app.stage);
+    // use local bounds to get visual top-left (handles any internal offset)
+    const lb = piece.getLocalBounds();
+    const topLeftWorld = piece.toGlobal({ x: lb.x, y: lb.y });
 
-    const stagePt = app.stage.toLocal(event.global);
-    dragOffset = {
-      x: stagePt.x - pieceContainer.x,
-      y: stagePt.y - pieceContainer.y,
-    };
+    // prefer integer cell footprint over raw px (avoids 0.5px stroke jitter)
+    const cellsW = (piece as any)._cellsW ?? Math.max(1, Math.round(lb.width / CELL));
+    const cellsH = (piece as any)._cellsH ?? Math.max(1, Math.round(lb.height / CELL));
+    const wPx = cellsW * CELL;
+    const hPx = cellsH * CELL;
 
-    pieceContainer.alpha = 0.7;
-    pieceContainer.zIndex = 9999;
-  });
+    // majority snap using center, with a small up/left bias
+    const centerX = topLeftWorld.x + wPx / 2 - BIAS;
+    const centerY = topLeftWorld.y + hPx / 2 - BIAS;
+    let gx = Math.floor(centerX / CELL);
+    let gy = Math.floor(centerY / CELL);
 
-  pieceContainer.on("globalpointermove", (event: FederatedPointerEvent) => {
-    if (!isDragging) return;
-    const stagePt = app.stage.toLocal(event.global);
-    pieceContainer.x = stagePt.x - dragOffset.x;
-    pieceContainer.y = stagePt.y - dragOffset.y;
-  });
+    //GameState validation
+    if (!canPlacePiece(gameState.grid, pieceData, gx, gy)) {
+    return revert();
+  }
 
-  const handleUp = (event: FederatedPointerEvent) => {
-    if (!isDragging) return;
-    isDragging = false;
-    pieceContainer.alpha = 1;
 
-    const boardPt = boardContainer.toLocal(event.global);
-
-    // piece size in grid cells
-    const cellsW =
-      (pieceContainer as any)._cellsW ??
-      Math.max(1, Math.round(pieceContainer.width / CELL));
-    const cellsH =
-      (pieceContainer as any)._cellsH ??
-      Math.max(1, Math.round(pieceContainer.height / CELL));
-
-    // compute "majority overlap" by centering the anchor point
-    const offsetX = (cellsW * CELL) / 2 - CELL / 2;
-    const offsetY = (cellsH * CELL) / 2 - CELL / 2;
-
-    // where the piece's center sits relative to the board
-    const adjustedPt = {
-      x: boardPt.x - dragOffset.x + offsetX,
-      y: boardPt.y - dragOffset.y + offsetY,
-    };
-
-    // derive grid cell index from that adjusted center
-    const anchorX = Math.floor(adjustedPt.x / CELL);
-    const anchorY = Math.floor(adjustedPt.y / CELL);
 
     const maxX = BOARD_CELLS - cellsW;
     const maxY = BOARD_CELLS - cellsH;
+    if (gx < 0 || gy < 0 || gx > maxX || gy > maxY) return revert();
 
-    // bounds check
-    if (anchorX < 0 || anchorY < 0 || anchorX > maxX || anchorY > maxY) {
-      revertToOrigin();
-      return;
-    }
+    // snap: place so that the visual top-left (lb.x/lb.y) lands on the grid
+    const snapX = gx * CELL;
+    const snapY = gy * CELL;
+    piece.position.set(snapX - lb.x, snapY - lb.y);
+    piece.alpha = 1;
+  }
 
-    // snap top-left corner to correct grid cell
-    preserveWorldAndReparent(boardContainer);
-    pieceContainer.x = anchorX * CELL;
-    pieceContainer.y = anchorY * CELL;
-  };
+  
 
-  pieceContainer.on("pointerup", handleUp);
-  pieceContainer.on("pointerupoutside", handleUp);
+  piece.on("pointerup", handleUp);
+  piece.on("pointerupoutside", handleUp);
 }
+
+

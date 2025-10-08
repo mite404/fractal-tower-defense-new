@@ -26,13 +26,13 @@ export const initialGameState: GameState = {
 }
 
 export function loop(gameState: GameState): GameState {
-  console.log('loop - input gameState.enemies:', gameState.enemies)
+  //console.log('loop - input gameState.enemies:', gameState.enemies)
   const inputs = getInputs()
   if (inputs.length > 0) {
     console.log("got inputs!", inputs)
   }
   const newGameState = updateGridWithClicks(inputs, gameState)
-  console.log('loop - after updateGridWithClicks, enemies:', newGameState.enemies)
+  //console.log('loop - after updateGridWithClicks, enemies:', newGameState.enemies)
 
   newGameState.wave += 1
 
@@ -54,4 +54,9 @@ function updateGridWithClicks(inputs: InputEvent[], gameState: GameState): GameS
   }
 
   return newGameState
+}
+
+function updateGridWithDragNDrop ( gamestate:GameState):GameState {
+  const newGameState = structuredClone(gamestate)
+  newGameState.grid
 }

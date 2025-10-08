@@ -31,11 +31,21 @@ export function createTestGrid(): Grid {
 	return grid;
 }
 
-export function printGrid(grid: Grid) {
+export function printGrid(grid: Grid, entrance: Cell, exit: Cell) {
 	for (const row of grid) {
-		console.log(row.map((c) => (c.type === "path" ? "🟩" : "⬜")).join(""));
+		console.log(
+			row
+				.map((c) => {
+					if (c.x === entrance.x && c.y === entrance.y) return "🟦"; // entrance
+					if (c.x === exit.x && c.y === exit.y) return "🟥"; // exit
+					if (c.type === "path") return "🟩"; // path
+					return "⬜"; // default
+				})
+				.join("")
+		);
 	}
 }
+
 
 function isValidCoord(x: number, y: number, grid: Grid): boolean {
 	return y >= 0 && y < grid.length && x >= 0 && x < grid[0].length;
@@ -47,9 +57,9 @@ export function getNeighbors(grid: Grid, cell: Cell): Cell[] {
 
   const deltas = [
     [0, -1], // up
-    [0, 1],  // down
     [-1, 0], // left
     [1, 0],  // right
+	[0, 1],  // down
   ];
 
   const neighbors: Cell[] = [];

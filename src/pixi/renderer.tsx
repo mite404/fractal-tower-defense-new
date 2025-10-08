@@ -85,6 +85,8 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
     })
   })
 
+  
+
   return app
 }
 

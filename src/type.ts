@@ -1,15 +1,18 @@
-import { startingHand } from "./types/pieces";
+import { startingHand } from "./types/pieces.ts";
 
 export type GameState = {
     player: Player;
     phase: Phase;
     grid: Grid;
+    spawn: Cell;
+    exit: Cell;
     wave: number;
     enemies: Enemy[];
     towers: Tower[];
     pieces: PlacedPiece[]
-    longestPath: PathNode[] // this is the path that the enemies are going to take
-    validPath: boolean
+    finalPath: Cell[] // this is the path that the enemies are going to take
+    selectingFinalPath: boolean; // flag for when player is choosing final path
+    validFinalPath: boolean
     winlose: 'Playing' | 'Win' | 'Lose'
 }
 
@@ -25,6 +28,8 @@ export type Player = {
 }
 
 export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' | 'exit'
+
+export type CellSelectionState = 'selected' | 'highlighted';
 
 export type Cell = {
     x: number | null; //col horizontal
@@ -109,15 +114,36 @@ export function createEmptyGrid(): Grid {
     );
 }
 
+export function createSpawn(x: number, y: number) : Cell {
+    const spawn : Cell = {
+        x,
+        y, 
+        type: 'spawn',
+    }
+    return spawn;
+}
+
+export function createExit(x: number, y: number) : Cell {
+    const spawn : Cell = {
+        x,
+        y, 
+        type: 'exit',
+    }
+    return spawn;
+}
+
 export const initialGameState: GameState = {
     player: initialPlayer,
     phase: 'Build',
     grid: createEmptyGrid(),
+    spawn: createSpawn(0, 0),
+    exit: createExit(9,9),
     wave: 1,
     enemies: [],
     towers: [],
     pieces: [],
     winlose: 'Playing',
-    validPath: false,
-    longestPath: []
+    validFinalPath: false,
+    finalPath: [],
+    selectingFinalPath: false,
 }

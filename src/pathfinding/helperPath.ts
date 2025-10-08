@@ -19,6 +19,14 @@ export function setCell(
 	return newGrid;
 }
 
+export function isSpawn(cell: Cell, spawn: Cell): boolean {
+	return cell.x === spawn.x && cell.y === spawn.y;
+}
+
+export function isExit(cell: Cell, exit: Cell): boolean {
+	return cell.x === exit.x && cell.y === exit.y;
+}
+
 export function createTestGrid(): Grid {
 	const grid: Grid = [];
 	for (let y = 0; y < 10; y++) {
@@ -46,32 +54,34 @@ export function printGrid(grid: Grid, entrance: Cell, exit: Cell) {
 	}
 }
 
-
 function isValidCoord(x: number, y: number, grid: Grid): boolean {
 	return y >= 0 && y < grid.length && x >= 0 && x < grid[0].length;
 }
 
 export function getNeighbors(grid: Grid, cell: Cell): Cell[] {
-  if (cell.x == null || cell.y == null)
-    throw new Error(`Cell has null coords: (${cell.x}, ${cell.y})`);
+	if (cell.x == null || cell.y == null)
+		throw new Error(`Cell has null coords: (${cell.x}, ${cell.y})`);
 
-  const deltas = [
-    [0, -1], // up
-    [-1, 0], // left
-    [1, 0],  // right
-	[0, 1],  // down
-  ];
+	const deltas = [
+		[0, -1], // up
+		[-1, 0], // left
+		[1, 0], // right
+		[0, 1], // down
+	];
 
-  const neighbors: Cell[] = [];
+	const neighbors: Cell[] = [];
 
-  for (const [dx, dy] of deltas) {
-    const nx = cell.x + dx;
-    const ny = cell.y + dy;
-    if (isValidCoord(nx, ny, grid)) {
-      neighbors.push(grid[ny][nx]);
-    }
-  }
+	for (const [dx, dy] of deltas) {
+		const nx = cell.x + dx;
+		const ny = cell.y + dy;
+		if (isValidCoord(nx, ny, grid)) {
+			neighbors.push(grid[ny][nx]);
+		}
+	}
 
-  return neighbors;
+	return neighbors;
 }
 
+export function isNeighbor(grid: Grid, a: Cell, b: Cell): boolean {
+	return getNeighbors(grid, a).some((n) => n.x === b.x && n.y === b.y);
+}

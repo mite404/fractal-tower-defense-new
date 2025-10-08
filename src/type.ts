@@ -27,7 +27,7 @@ export type Player = {
     hand: Piece[]; // pieces in the player's hand
 }
 
-export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' |'exit'
+export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' | 'exit'
 
 export type CellSelectionState = 'selected' | 'highlighted';
 

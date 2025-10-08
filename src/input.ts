@@ -2,6 +2,8 @@
 export type InputEvent = Spacebar | CellClick
 
 export type Spacebar = {}
+
+
 export type CellClick = {
   inputType: 'cellClick'
   cellX: number,

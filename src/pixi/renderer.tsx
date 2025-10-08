@@ -1,15 +1,15 @@
-import { Application, Assets, Container, Sprite, Graphics } from 'pixi.js';
-import { createEmptyGrid, type Cell, type GameState, type Grid } from '../type';
-import { addInput } from '../input';
-import { enemyDummyTexture } from './textures';
-import { loadTextures } from "./textures.ts"
+import { Application, Container, Sprite, Graphics } from 'pixi.js';
+import { type GameState, createEmptyGrid } from '../type';
+import { enemyDummyTexture, bgTileTexture } from './textures';
+import { loadTextures } from "./textures.ts";
 import { renderInventory } from './inventoryRender.tsx';
+import { addInput } from '../input.ts';
 
 
 let displayGrid: Graphics[][]
+let displayBgTileSprite: Sprite
 let displayEnemy: Container
-export let boardContainer: Container
-let enemySprites = new Map<string, Sprite>()
+const enemySprites = new Map<string, Sprite>()
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   // TODO: pull out any init stuff from the render function and put it in here.
@@ -31,22 +31,52 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   await loadTextures()
 
   // Create and add a container to the stage
-  boardContainer = new Container();
-  displayEnemy = new Container()
+  const boardContainer = new Container();
+  displayEnemy = new Container();
 
+  // Create the background tileset
+  displayBgTileSprite = new Sprite(bgTileTexture)
+  displayBgTileSprite.width = 600;
+  displayBgTileSprite.height = 600;
+  displayBgTileSprite.x = 0;
+  displayBgTileSprite.y = 0;
+
+  // A WAY TO DRAW A GRID ONCE INSTEAD OF EVERY FRAME
+  // TODO: figure out how to implement with out breaking the displayGrid as an array 
+  // and the `cellClick` functionality
+  //
+  // const drawGrid = new Graphics()
+
+  // // vertical grid lines
+  // for (let i = 0; i <= 10; i++) {
+  //   drawGrid.moveTo(i * 60, 0).lineTo(i * 60, 600);
+  // }
+
+  // // horizontal grid lines
+  // for (let i = 0; i <= 10; i++) {
+  //   drawGrid.moveTo(0, i * 60).lineTo(600, i * 60);
+  // }
+
+  // drawGrid.stroke({ width: 1, color: 0x00ff00 })
+
+  app.stage.addChild(displayBgTileSprite);
+  // app.stage.addChild(drawGrid);
   app.stage.addChild(boardContainer);
-  app.stage.addChild(displayEnemy)
+  app.stage.addChild(displayEnemy);
 
 
   displayGrid = createEmptyGrid().map((row, rowIndex) => {
     return row.map((cell, colIndex) => {
       const square = new Graphics()
         .rect((colIndex * 60), (rowIndex * 60), 60, 60)
-        .fill(0xAAAAAA)
+        .fill({ color: 0xAAAAAA, alpha: 200 })
         .stroke(0x00ff00)
       square.eventMode = 'static';
 
       square.on('pointerdown', (event) => {
+        // do we want to standardize this to the 2D array defaults?? e.g. 
+        // cellX: colIndex  // column = x
+        // cellY: rowIndex  // row = y
         addInput({ inputType: "cellClick", cellX: rowIndex, cellY: colIndex })
         console.log("adding to input queue")
       });
@@ -107,17 +137,8 @@ function renderEnemies(app: Application, gameState: GameState) {
     const sprite = enemySprites.get(enemy.id)!
     //console.log('Setting sprite position:', enemy.currentPosition)
     sprite.x = enemy.currentPosition.x * 60
-    sprite.y = enemy.currentPosition.x * 60
+    sprite.y = enemy.currentPosition.y * 60
   })
-
-  //console.log('enemyDummyTexture:', enemyDummyTexture)
-
-  // const testEnemy = new Sprite(enemyDummyTexture)
-
-  // testEnemy.x = 60 * 3
-  // testEnemy.y = 60 * 3
-  // displayEnemy.addChild(testEnemy)
-
 
   return app
 }

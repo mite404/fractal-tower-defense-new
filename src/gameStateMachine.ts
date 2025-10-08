@@ -1,7 +1,22 @@
+import { moveEnemyTowardTarget } from "./enemyMovement";
 import { getInputs } from "./input";
-import { type GameState, createEmptyGrid, initialPlayer } from "./type";
 import type { CellClick } from "./input";
 import type { InputEvent } from "./input";
+import { type GameState, createEmptyGrid, initialPlayer, type PathNode } from "./type";
+
+const mockPath: PathNode[] = [
+  { id: 'node0', x: 3, y: 0 },
+  { id: 'node1', x: 4, y: 3 },
+  { id: 'node2', x: 5, y: 3 },
+  { id: 'node3', x: 6, y: 3 },
+  { id: 'node4', x: 6, y: 4 },
+  { id: 'node5', x: 6, y: 5 },
+  { id: 'node6', x: 6, y: 6 },
+  { id: 'node7', x: 7, y: 6 },
+  { id: 'node8', x: 8, y: 6 },
+  { id: 'node9', x: 3, y: 9 },
+]
+
 
 export const initialGameState: GameState = {
   player: initialPlayer,
@@ -14,8 +29,8 @@ export const initialGameState: GameState = {
     currentHealth: 100,
     maxHealth: 100,
     speed: 1,
-    to: { id: 'node1', x: 0, y: 0 },
-    currentPosition: { x: 8, y: 8 },
+    to: mockPath[1],
+    currentPosition: mockPath[0],
     gold: 20,
   }],
   towers: [],
@@ -28,29 +43,24 @@ export const initialGameState: GameState = {
 export function loop(gameState: GameState): GameState {
   //console.log('loop - input gameState.enemies:', gameState.enemies)
   const inputs = getInputs()
+
   if (inputs.length > 0) {
     console.log("got inputs!", inputs)
   }
+
   const newGameState = updateGridWithClicks(inputs, gameState)
   //console.log('loop - after updateGridWithClicks, enemies:', newGameState.enemies)
 
+  // set wave state
   newGameState.wave += 1
 
   // Safety check before accessing enemy
   if (newGameState.wave % 30 === 0 && newGameState.enemies.length > 0) {
     const enemy = newGameState.enemies[0]
-
-    if (enemy.currentPosition.x < 9 && enemy.currentPosition.y < 9) {
-      enemy.currentPosition.x += 1
-      enemy.currentPosition.y += 1
-    }
-
-    // enemy.currentPosition.y += 1
-    // enemy.currentPosition.x += 1
-
-    // Testing reading updated enemy position
     const enemyCellCol = enemy.currentPosition.x
     const enemyCellRow = enemy.currentPosition.y
+
+    moveEnemyTowardTarget(newGameState.enemies[0], mockPath)
     console.log('Enemy moved to cell:', enemyCellCol, enemyCellRow)
   }
 

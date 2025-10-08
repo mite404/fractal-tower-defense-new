@@ -1,9 +1,8 @@
 import { moveEnemyTowardTarget } from "./enemyMovement";
 import { getInputs } from "./input";
-import { type GameState, createEmptyGrid, initialPlayer } from "./type";
 import type { CellClick } from "./input";
 import type { InputEvent } from "./input";
-import { type GameState, type Player, type Enemy, createEmptyGrid, initialPlayer, PathNode } from "./type";
+import { type GameState, createEmptyGrid, initialPlayer, type PathNode } from "./type";
 
 const mockPath: PathNode[] = [
   { id: 'node0', x: 3, y: 0 },

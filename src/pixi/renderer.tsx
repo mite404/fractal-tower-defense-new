@@ -106,8 +106,8 @@ function renderEnemies(app: Application, gameState: GameState) {
 
     const sprite = enemySprites.get(enemy.id)!
     //console.log('Setting sprite position:', enemy.currentPosition)
-    sprite.x = enemy.currentPosition.x * 1
-    sprite.y = enemy.currentPosition.x * 1
+    sprite.x = enemy.currentPosition.x * 60
+    sprite.y = enemy.currentPosition.x * 60
   })
 
   //console.log('enemyDummyTexture:', enemyDummyTexture)

@@ -8,6 +8,7 @@ import { renderInventory } from './inventoryRender.tsx';
 
 let displayGrid: Graphics[][]
 let displayEnemy: Container
+export let boardContainer: Container
 let enemySprites = new Map<string, Sprite>()
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
@@ -30,7 +31,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   await loadTextures()
 
   // Create and add a container to the stage
-  const boardContainer = new Container();
+  boardContainer = new Container();
   displayEnemy = new Container()
 
   app.stage.addChild(boardContainer);
@@ -53,6 +54,8 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
       return square
     })
   })
+
+  
 
   return app
 }

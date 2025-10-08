@@ -1,82 +1,100 @@
-import { Container, type Application } from "pixi.js";
+import type { Application, Container, FederatedPointerEvent } from "pixi.js";
+import type { GameState, Piece } from "../type";
+import { canPlacePiece } from "../gameEngine/gameLogic";
 
-export function setupDragAndDrop(app: Application, pieceContainer: Container): void {
-    let isDragging = false
-    let dragOffset = { x: 0, y: 0 };
-    let originalPosition = { x: 0, y: 0 };
-    const cellSize = 60
-    const originalParent = pieceContainer.parent
+export function setupDragAndDrop(app: Application, piece: Container, gameState:GameState, pieceData:Piece): void {
+  const CELL = 60;
+  const BOARD_CELLS = 10;
+  const BIAS = 0.33 * CELL; // 2% of a cell: nudges ties up/left (remove/adjust to taste)
 
-    pieceContainer.on('pointerdown', (event) => {
-        isDragging = true
+  let dragging = false;
+  let originParent: Container | null = null;
+  let originPos = { x: 0, y: 0 };
+  let dragOffsetStage = { x: 0, y: 0 };
 
-        originalPosition.x = pieceContainer.x
-        originalPosition.y = pieceContainer.y
+  function preserveWorldAndReparent(obj: Container, newParent: Container) {
+    const world = obj.parent!.toGlobal(obj.position);
+    newParent.addChild(obj);
+    obj.position.copyFrom(newParent.toLocal(world));
+  }
 
-        const stagePos = event.getLocalPosition(app.stage)
+  piece.eventMode = "static";
+  piece.cursor = "pointer";
 
-        dragOffset.x = pieceContainer.x - stagePos.x
-        dragOffset.y = pieceContainer.y - stagePos.y
+  piece.on("pointerdown", (e: FederatedPointerEvent) => {
+    // guard: only start if actually inside
+    const b = piece.getBounds();
+    if (e.global.x < b.left || e.global.x > b.right || e.global.y < b.top || e.global.y > b.bottom) return;
 
-        pieceContainer.alpha = .7
+    dragging = true;
+    originParent = piece.parent!;
+    originPos = { x: piece.x, y: piece.y };
+
+    preserveWorldAndReparent(piece, app.stage);
+
+    const stagePt = app.stage.toLocal(e.global);
+    dragOffsetStage.x = stagePt.x - piece.x;
+    dragOffsetStage.y = stagePt.y - piece.y;
+
+    piece.alpha = 0.8;
+    piece.zIndex = 10_000;
+  });
+
+  piece.on("globalpointermove", (e: FederatedPointerEvent) => {
+    if (!dragging) return;
+    const p = app.stage.toLocal(e.global);
+    piece.position.set(p.x - dragOffsetStage.x, p.y - dragOffsetStage.y);
+  });
+
+  function revert() {
+    if (!originParent) return;
+    preserveWorldAndReparent(piece, originParent);
+    piece.position.set(originPos.x, originPos.y);
+    piece.alpha = 1;
+  }
+
+  function handleUp(_e: FederatedPointerEvent) {
+    if (!dragging) return;
+    dragging = false;
+
+    // use local bounds to get visual top-left (handles any internal offset)
+    const lb = piece.getLocalBounds();
+    const topLeftWorld = piece.toGlobal({ x: lb.x, y: lb.y });
+
+    // prefer integer cell footprint over raw px (avoids 0.5px stroke jitter)
+    const cellsW = (piece as any)._cellsW ?? Math.max(1, Math.round(lb.width / CELL));
+    const cellsH = (piece as any)._cellsH ?? Math.max(1, Math.round(lb.height / CELL));
+    const wPx = cellsW * CELL;
+    const hPx = cellsH * CELL;
+
+    // majority snap using center, with a small up/left bias
+    const centerX = topLeftWorld.x + wPx / 2 - BIAS;
+    const centerY = topLeftWorld.y + hPx / 2 - BIAS;
+    let gx = Math.floor(centerX / CELL);
+    let gy = Math.floor(centerY / CELL);
+
+    //GameState validation
+    if (!canPlacePiece(gameState.grid, pieceData, gx, gy)) {
+    return revert();
+  }
 
 
-        originalParent?.removeChild(pieceContainer)
-        app.stage.addChild(pieceContainer)
-    })
 
-    pieceContainer.on('globalpointermove', (event) => {
-        if (isDragging) {
-            const stagePos = event.getLocalPosition(app.stage)
-            pieceContainer.x = stagePos.x + dragOffset.x
-            pieceContainer.y = stagePos.y + dragOffset.y
-        }
-    })
+    const maxX = BOARD_CELLS - cellsW;
+    const maxY = BOARD_CELLS - cellsH;
+    if (gx < 0 || gy < 0 || gx > maxX || gy > maxY) return revert();
 
-    function handlePointerUp(): void {
-        if (isDragging) {
-            const snapped = snapToGrid(pieceContainer.x, pieceContainer.y, cellSize)
+    // snap: place so that the visual top-left (lb.x/lb.y) lands on the grid
+    const snapX = gx * CELL;
+    const snapY = gy * CELL;
+    piece.position.set(snapX - lb.x, snapY - lb.y);
+    piece.alpha = 1;
+  }
 
-            const gridPos = pixelToGrid(snapped.x, snapped.y, cellSize)
+  
 
-
-            //TODO valid position checking
-            if (isValidBoardPosition(gridPos.x, gridPos.y)) {
-                pieceContainer.x = snapped.x
-                pieceContainer.y = snapped.y
-
-                // TODO call back to actually update GameState
-            } else {
-                app.stage.removeChild(pieceContainer)
-                originalParent!.addChild(pieceContainer)
-                pieceContainer.x = originalPosition.x
-                pieceContainer.y = originalPosition.y
-            }
-
-            pieceContainer.alpha = 1
-            isDragging = false
-        }
-    }
-
-    pieceContainer.on('pointerup', handlePointerUp)
-    pieceContainer.on('pointerupoutside', handlePointerUp)
-
-    function pixelToGrid(pixelX: number, pixelY: number, cellSize: number = 60): { x: number; y: number } {
-        return {
-            x: Math.floor(pixelX / cellSize),
-            y: Math.floor(pixelY / cellSize)
-        };
-    }
-
-
-    function snapToGrid(x: number, y: number, cellsize: number): { x: number, y: number } {
-        const gridX = Math.round(x / cellsize)
-        const gridY = Math.round(y / cellsize)
-
-        return { x: gridX * cellSize, y: gridY * cellSize }
-    }
-
-    function isValidBoardPosition(gridX: number, gridY: number): boolean {
-        return gridX >= 0 && gridX < 10 && gridY >= 0 && gridY < 10
-    }
+  piece.on("pointerup", handleUp);
+  piece.on("pointerupoutside", handleUp);
 }
+
+

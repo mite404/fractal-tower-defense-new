@@ -2,10 +2,12 @@ import type { Cell } from "../type.ts";
 import { createTestGrid, setCell } from "./helperPath.ts";
 import { hasValidPath } from "./validPath.ts";
 
+//bunx ts-node src/pathfinding/testPath.ts
+
 const entrance: Cell = { x: 5, y: 0, type: "path" }; //path is irrelevant 
 const exit: Cell = { x: 9, y: 9, type: "path" }; 
 
-//console.log(`Testing on entrance: ${JSON.stringify(entrance)}, exit: ${JSON.stringify(exit)}`)
+console.log(`Testing on entrance: ${JSON.stringify(entrance)}, exit: ${JSON.stringify(exit)}`)
 
 // test 1 – straight vertical path at column 5
 let testGrid1 = createTestGrid();

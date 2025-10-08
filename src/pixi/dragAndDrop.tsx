@@ -1,82 +1,99 @@
-import { Container, type Application } from "pixi.js";
+import { Application, Container, FederatedPointerEvent } from "pixi.js";
 
-export function setupDragAndDrop(app: Application, pieceContainer: Container): void {
-    let isDragging = false
-    let dragOffset = { x: 0, y: 0 };
-    let originalPosition = { x: 0, y: 0 };
-    const cellSize = 60
-    const originalParent = pieceContainer.parent
+export function setupDragAndDrop(
+  app: Application,
+  pieceContainer: Container,
+  boardContainer: Container,
+  inventoryContainer: Container
+) {
+  const CELL = 60;
+  const BOARD_CELLS = 10;
 
-    pieceContainer.on('pointerdown', (event) => {
-        isDragging = true
+  let isDragging = false;
+  let dragOffset = { x: 0, y: 0 };
+  let originContainer: Container | null = null;
+  let originalPosition = { x: 0, y: 0 };
 
-        originalPosition.x = pieceContainer.x
-        originalPosition.y = pieceContainer.y
+  function preserveWorldAndReparent(newParent: Container) {
+    const global = pieceContainer.toGlobal({ x: 0, y: 0 });
+    newParent.addChild(pieceContainer);
+    pieceContainer.position = newParent.toLocal(global);
+  }
 
-        const stagePos = event.getLocalPosition(app.stage)
+  function revertToOrigin() {
+    preserveWorldAndReparent(originContainer!);
+    pieceContainer.x = originalPosition.x;
+    pieceContainer.y = originalPosition.y;
+  }
 
-        dragOffset.x = pieceContainer.x - stagePos.x
-        dragOffset.y = pieceContainer.y - stagePos.y
+  pieceContainer.on("pointerdown", (event: FederatedPointerEvent) => {
+    isDragging = true;
+    originContainer = pieceContainer.parent!;
+    originalPosition = { x: pieceContainer.x, y: pieceContainer.y };
 
-        pieceContainer.alpha = .7
+    preserveWorldAndReparent(app.stage);
 
+    const stagePt = app.stage.toLocal(event.global);
+    dragOffset = {
+      x: stagePt.x - pieceContainer.x,
+      y: stagePt.y - pieceContainer.y,
+    };
 
-        originalParent?.removeChild(pieceContainer)
-        app.stage.addChild(pieceContainer)
-    })
+    pieceContainer.alpha = 0.7;
+    pieceContainer.zIndex = 9999;
+  });
 
-    pieceContainer.on('globalpointermove', (event) => {
-        if (isDragging) {
-            const stagePos = event.getLocalPosition(app.stage)
-            pieceContainer.x = stagePos.x + dragOffset.x
-            pieceContainer.y = stagePos.y + dragOffset.y
-        }
-    })
+  pieceContainer.on("globalpointermove", (event: FederatedPointerEvent) => {
+    if (!isDragging) return;
+    const stagePt = app.stage.toLocal(event.global);
+    pieceContainer.x = stagePt.x - dragOffset.x;
+    pieceContainer.y = stagePt.y - dragOffset.y;
+  });
 
-    function handlePointerUp(): void {
-        if (isDragging) {
-            const snapped = snapToGrid(pieceContainer.x, pieceContainer.y, cellSize)
+  const handleUp = (event: FederatedPointerEvent) => {
+    if (!isDragging) return;
+    isDragging = false;
+    pieceContainer.alpha = 1;
 
-            const gridPos = pixelToGrid(snapped.x, snapped.y, cellSize)
+    const boardPt = boardContainer.toLocal(event.global);
 
+    // piece size in grid cells
+    const cellsW =
+      (pieceContainer as any)._cellsW ??
+      Math.max(1, Math.round(pieceContainer.width / CELL));
+    const cellsH =
+      (pieceContainer as any)._cellsH ??
+      Math.max(1, Math.round(pieceContainer.height / CELL));
 
-            //TODO valid position checking
-            if (isValidBoardPosition(gridPos.x, gridPos.y)) {
-                pieceContainer.x = snapped.x
-                pieceContainer.y = snapped.y
+    // compute "majority overlap" by centering the anchor point
+    const offsetX = (cellsW * CELL) / 2 - CELL / 2;
+    const offsetY = (cellsH * CELL) / 2 - CELL / 2;
 
-                // TODO call back to actually update GameState
-            } else {
-                app.stage.removeChild(pieceContainer)
-                originalParent!.addChild(pieceContainer)
-                pieceContainer.x = originalPosition.x
-                pieceContainer.y = originalPosition.y
-            }
+    // where the piece's center sits relative to the board
+    const adjustedPt = {
+      x: boardPt.x - dragOffset.x + offsetX,
+      y: boardPt.y - dragOffset.y + offsetY,
+    };
 
-            pieceContainer.alpha = 1
-            isDragging = false
-        }
+    // derive grid cell index from that adjusted center
+    const anchorX = Math.floor(adjustedPt.x / CELL);
+    const anchorY = Math.floor(adjustedPt.y / CELL);
+
+    const maxX = BOARD_CELLS - cellsW;
+    const maxY = BOARD_CELLS - cellsH;
+
+    // bounds check
+    if (anchorX < 0 || anchorY < 0 || anchorX > maxX || anchorY > maxY) {
+      revertToOrigin();
+      return;
     }
 
-    pieceContainer.on('pointerup', handlePointerUp)
-    pieceContainer.on('pointerupoutside', handlePointerUp)
+    // snap top-left corner to correct grid cell
+    preserveWorldAndReparent(boardContainer);
+    pieceContainer.x = anchorX * CELL;
+    pieceContainer.y = anchorY * CELL;
+  };
 
-    function pixelToGrid(pixelX: number, pixelY: number, cellSize: number = 60): { x: number; y: number } {
-        return {
-            x: Math.floor(pixelX / cellSize),
-            y: Math.floor(pixelY / cellSize)
-        };
-    }
-
-
-    function snapToGrid(x: number, y: number, cellsize: number): { x: number, y: number } {
-        const gridX = Math.round(x / cellsize)
-        const gridY = Math.round(y / cellsize)
-
-        return { x: gridX * cellSize, y: gridY * cellSize }
-    }
-
-    function isValidBoardPosition(gridX: number, gridY: number): boolean {
-        return gridX >= 0 && gridX < 10 && gridY >= 0 && gridY < 10
-    }
+  pieceContainer.on("pointerup", handleUp);
+  pieceContainer.on("pointerupoutside", handleUp);
 }

@@ -1,22 +1,13 @@
 import { Graphics, Container, Application, FederatedPointerEvent } from "pixi.js";
 import type { GameState } from "../type";
 import { setupDragAndDrop } from "./dragAndDrop";
+import { boardContainer } from './renderer'
+
 
 const inventory = new Container()
-const sidebarBg = new Graphics()
-
-
 
 export function renderInventory(app: Application, gameState: GameState): Application {
-
-
-  // Sidebar background generation
-
-  sidebarBg.rect(750, 0, 480, 720)
-  sidebarBg.fill(0x1a1a1a);
-  sidebarBg.stroke({ width: 2, color: 0x333333 })
-
-  inventory.addChild(sidebarBg)
+  app.stage.addChild(inventory)
 
   let endY = 10 // Start at top padding
   let endX = 750 // Start of sidebar
@@ -27,11 +18,11 @@ export function renderInventory(app: Application, gameState: GameState): Applica
 
   gameState.player.hand.forEach((piece) => {
     const pieceContainer = new Container()
-    pieceContainer.eventMode = 'static'
-    pieceContainer.cursor = 'pointer'
-
-    pieceContainer.x = 0
-    pieceContainer.y = 0
+    pieceContainer.x = endX;
+    pieceContainer.y = endY;
+    pieceContainer.eventMode = 'static';
+    pieceContainer.cursor = 'pointer';
+    pieceContainer.label = `piece-${piece.id}`; 
     const piecePaddingY = 10;
     const piecePaddingX = 10;
 
@@ -63,9 +54,12 @@ export function renderInventory(app: Application, gameState: GameState): Applica
           color = 0x666666;
         }
 
-        cellGraphics.rect(colIdx * 60 + piecePaddingX + endX, rowidx * 60 +endY, 60, 60),
+        cellGraphics.rect(colIdx * 60, rowidx * 60, 60, 60),
           cellGraphics.fill(color)
         cellGraphics.stroke({ width: 1, color: 0x333333 })
+
+        pieceContainer.x = endX + piecePaddingX
+        pieceContainer.y = endY
 
         pieceContainer.addChild(cellGraphics)
         maxX = Math.max(maxX, colIdx * 60 + piecePaddingX)
@@ -76,7 +70,7 @@ export function renderInventory(app: Application, gameState: GameState): Applica
     // Add to inventory
     inventory.addChild(pieceContainer)
 
-    setupDragAndDrop(app, pieceContainer)
+    setupDragAndDrop(app, pieceContainer, boardContainer, inventory)
 
     endY += nonEmptyRows * 60 + piecePaddingY
 
@@ -85,7 +79,7 @@ export function renderInventory(app: Application, gameState: GameState): Applica
 
   );
 
-  app.stage.addChild(inventory)
+
   return app
 }
 

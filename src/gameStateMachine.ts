@@ -1,5 +1,5 @@
 import { getInputs } from "./input";
-import { type GameState, type Player, type Enemy, createEmptyGrid, initialPlayer } from "./type";
+import { type GameState, createEmptyGrid, initialPlayer } from "./type";
 import type { CellClick } from "./input";
 import type { InputEvent } from "./input";
 
@@ -56,7 +56,3 @@ function updateGridWithClicks(inputs: InputEvent[], gameState: GameState): GameS
   return newGameState
 }
 
-function updateGridWithDragNDrop ( gamestate:GameState):GameState {
-  const newGameState = structuredClone(gamestate)
-  newGameState.grid
-}

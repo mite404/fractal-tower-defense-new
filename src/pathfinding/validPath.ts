@@ -1,13 +1,28 @@
 import type { Cell, Grid } from "../type.ts";
 import { createTestGrid, getNeighbors, printGrid } from "./helperPath.ts";
 
-
 export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
-	//console.log("----------------------------------- \nValidating Path In: \n ");
-	printGrid(grid);
+	if (
+		entrance.x == null ||
+		entrance.y == null ||
+		exit.x == null ||
+		exit.y == null
+	) {
+		console.error("Entrance or exit has null coordinates.");
+		return false;
+	}
 
-	const entranceCell = grid[entrance.x][entrance.y];
-	const exitCell = grid[exit.x][exit.y];
+	if (!grid[entrance.y] || !grid[entrance.y][entrance.x]) {
+		console.error("Entrance out of grid bounds.");
+		return false;
+	}
+	if (!grid[exit.y] || !grid[exit.y][exit.x]) {
+		console.error("Exit out of grid bounds.");
+		return false;
+	}
+
+	const entranceCell = grid[entrance.y][entrance.x];
+	const exitCell = grid[exit.y][exit.x];
 
 	if (entranceCell.type !== "path" || exitCell.type !== "path") {
 		console.log("Entrance or exit is not a path cell.");
@@ -18,8 +33,7 @@ export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
 	const path: Cell[] = []; // track current path for debugging
 
 	function dfs(node: Cell): boolean {
-		path.push(node);
-		visited.add(`${node.x},${node.y}`);
+		if (node.x == null || node.y == null) return false;
 
 		// DEBUGGING
 		// console.log(
@@ -28,19 +42,18 @@ export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
 		// 		.join(" -> ")}`
 		// );
 
+		path.push(node);
+		visited.add(`${node.x},${node.y}`);
+
+		// FIXME DEBUGGING 
 		if (node.x === exit.x && node.y === exit.y) {
-			//console.log("Exit reached! Valid path found:");
-			//console.log(path.map((c) => `(${c.x},${c.y})`).join(" -> "));
-
 			const validPathGrid = createTestGrid();
-			//make path down colIndex 5
-
 			for (const coord of path) {
-				validPathGrid[coord.x][coord.y] = { ...coord, type: "path" };
+				validPathGrid[coord.y][coord.x] = { ...coord, type: "path" };
 			}
-
-			printGrid(validPathGrid)
-
+			console.log("Exit reached! Valid path found:");
+			//console.log(path.map((c) => `(${c.x},${c.y})`).join(" -> "));
+			printGrid(validPathGrid);
 			return true;
 		}
 
@@ -53,14 +66,12 @@ export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
 			}
 		}
 
-		//deadend
 		path.pop();
 		return false;
 	}
 
-	return dfs(entrance);
+	return dfs(entranceCell);
 }
-
 
 /*
 DFS Pathfinding :

@@ -88,26 +88,26 @@ function renderBoard(app: Application, gameState: GameState): Application {
 }
 
 function renderEnemies(app: Application, gameState: GameState) {
-  console.log('renderEnemies called, enemies:', gameState.enemies)
-  console.log('enemySprites Map size:', enemySprites.size)
+  //console.log('renderEnemies called, enemies:', gameState.enemies)
+  //console.log('enemySprites Map size:', enemySprites.size)
 
   gameState.enemies.forEach(enemy => {
-    console.log('Processing enemy:', enemy.id)
+    //console.log('Processing enemy:', enemy.id)
 
     if (!enemySprites.has(enemy.id)) {
-      console.log('Creating new sprite for:', enemy.id)
+      //console.log('Creating new sprite for:', enemy.id)
       const sprite = new Sprite(enemyDummyTexture)
       enemySprites.set(enemy.id, sprite)
       displayEnemy.addChild(sprite)
     }
 
     const sprite = enemySprites.get(enemy.id)!
-    console.log('Setting sprite position:', enemy.currentPosition)
+    //console.log('Setting sprite position:', enemy.currentPosition)
     sprite.x = enemy.currentPosition.x * 1
     sprite.y = enemy.currentPosition.x * 1
   })
 
-  console.log('enemyDummyTexture:', enemyDummyTexture)
+  //console.log('enemyDummyTexture:', enemyDummyTexture)
 
   // const testEnemy = new Sprite(enemyDummyTexture)
 

@@ -24,13 +24,14 @@ export type Player = {
     hand: Piece[]; // pieces in the player's hand
 }
 
-export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' |'exit'
+export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' | 'exit'
 
 export type Cell = {
     x: number | null; //col horizontal
     y: number | null; //row vertical
     // Grid[y][x] refers to the correct cell
     type: CellType;
+    selectionState?: CellSelectionState; //used during final path selection
     occupiedBy?: string;
     terrain?: string //potential different effects later
 }

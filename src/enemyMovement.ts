@@ -1,10 +1,23 @@
-// TODO: implement enemy moving along path
+import type { Enemy, PathNode } from "./type";
 
-// const mockPath: PathNode[] = [
-//   { id: 'start', x: 3, y: 3 },
-//   { id: 'mid1', x: 6, y: 3 },
-//   { id: 'mid2', x: 6, y: 6 },
-//   { id: 'end', x: 9, y: 6 }
-// ]
 
-// export function 
+export function moveEnemyTowardTarget(enemy: Enemy, longestPath: PathNode[]): void {
+  const target = enemy.to
+  const index = longestPath.findIndex(node => node.x === target.x && node.y === target.y)
+
+  if (target) {
+    if (enemy.currentPosition.x < target.x) {
+      enemy.currentPosition.x += 1
+
+    }
+
+    if (enemy.currentPosition.y < target.y) {
+      enemy.currentPosition.y += 1
+
+    }
+    // update to next waypoint
+    if (enemy.currentPosition.x == target.x && enemy.currentPosition.y == target.y) {
+      enemy.to = longestPath[index + 1]
+    }
+  }
+}

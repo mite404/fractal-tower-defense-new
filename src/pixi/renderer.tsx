@@ -46,6 +46,9 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
       square.eventMode = 'static';
 
       square.on('pointerdown', (event) => {
+        // do we want to standarize this to the 2D array defaults?? e.g. 
+        // cellX: colIndex  // column = x
+        // cellY: rowIndex  // row = y
         addInput({ inputType: "cellClick", cellX: rowIndex, cellY: colIndex })
         console.log("adding to input queue")
       });
@@ -104,17 +107,8 @@ function renderEnemies(app: Application, gameState: GameState) {
     const sprite = enemySprites.get(enemy.id)!
     //console.log('Setting sprite position:', enemy.currentPosition)
     sprite.x = enemy.currentPosition.x * 60
-    sprite.y = enemy.currentPosition.x * 60
+    sprite.y = enemy.currentPosition.y * 60
   })
-
-  //console.log('enemyDummyTexture:', enemyDummyTexture)
-
-  // const testEnemy = new Sprite(enemyDummyTexture)
-
-  // testEnemy.x = 60 * 3
-  // testEnemy.y = 60 * 3
-  // displayEnemy.addChild(testEnemy)
-
 
   return app
 }

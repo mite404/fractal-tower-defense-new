@@ -13,9 +13,9 @@ export const initialGameState: GameState = {
     type: 'basic',
     currentHealth: 100,
     maxHealth: 100,
-    speed: .2,
-    to: { id: 'node1', x: 9, y: 9 },
-    currentPosition: { x: 3, y: 3 },
+    speed: 1,
+    to: { id: 'node1', x: 0, y: 0 },
+    currentPosition: { x: 8, y: 8 },
     gold: 20,
   }],
   towers: [],
@@ -37,8 +37,21 @@ export function loop(gameState: GameState): GameState {
   newGameState.wave += 1
 
   // Safety check before accessing enemy
-  if (newGameState.enemies.length > 0) {
-    newGameState.enemies[0].currentPosition.x += 1
+  if (newGameState.wave % 30 === 0 && newGameState.enemies.length > 0) {
+    const enemy = newGameState.enemies[0]
+
+    if (enemy.currentPosition.x < 9 && enemy.currentPosition.y < 9) {
+      enemy.currentPosition.x += 1
+      enemy.currentPosition.y += 1
+    }
+
+    // enemy.currentPosition.y += 1
+    // enemy.currentPosition.x += 1
+
+    // Testing reading updated enemy position
+    const enemyCellCol = enemy.currentPosition.x
+    const enemyCellRow = enemy.currentPosition.y
+    console.log('Enemy moved to cell:', enemyCellCol, enemyCellRow)
   }
 
   return newGameState
@@ -56,7 +69,7 @@ function updateGridWithClicks(inputs: InputEvent[], gameState: GameState): GameS
   return newGameState
 }
 
-function updateGridWithDragNDrop ( gamestate:GameState):GameState {
+function updateGridWithDragNDrop(gamestate: GameState): GameState {
   const newGameState = structuredClone(gamestate)
   newGameState.grid
 }

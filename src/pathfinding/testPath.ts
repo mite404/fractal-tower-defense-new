@@ -1,4 +1,4 @@
-import type { Cell, Grid } from "../type.ts";
+import type { Cell } from "../type.ts";
 import { createTestGrid, setCell } from "./helperPath.ts";
 import { hasValidPath } from "./validpath.ts";
 

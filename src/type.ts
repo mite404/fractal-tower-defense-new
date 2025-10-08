@@ -27,8 +27,9 @@ export type Player = {
 export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' |'exit'
 
 export type Cell = {
-    x: number | null;
-    y: number | null;
+    x: number | null; //col horizontal
+    y: number | null; //row vertical
+    // Grid[y][x] refers to the correct cell
     type: CellType;
     occupiedBy?: string;
     terrain?: string //potential different effects later

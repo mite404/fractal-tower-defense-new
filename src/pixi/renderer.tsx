@@ -2,8 +2,7 @@ import {
 	Application,
 	Container,
 	Sprite,
-	Graphics,
-	type PointData,
+	Graphics
 } from "pixi.js";
 import { type GameState, createEmptyGrid } from "../type";
 import { enemyDummyTexture, bgTileTexture } from "./textures";
@@ -11,12 +10,13 @@ import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
 
-let app: Application;
-let displayGrid: Graphics[][];
-let displayBgTileSprite: Sprite;
-let displayEnemy: Container;
-export let board: Container;
-const enemySprites = new Map<string, Sprite>();
+
+let displayGrid: Graphics[][]
+let displayBgTileSprite: Sprite
+let displayEnemy: Container
+let displayTower: Container
+export let board: Container
+const enemySprites = new Map<string, Sprite>()
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 	// TODO: pull out any init stuff from the render function and put it in here.
@@ -39,14 +39,14 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 	displayEnemy = new Container();
 
 	// Create the background tileset
-	displayBgTileSprite = new Sprite(bgTileTexture);
+	displayBgTileSprite = new Sprite(bgTileTexture)
 	displayBgTileSprite.width = 600;
 	displayBgTileSprite.height = 600;
 	displayBgTileSprite.x = 0;
 	displayBgTileSprite.y = 0;
 
 	// A WAY TO DRAW A GRID ONCE INSTEAD OF EVERY FRAME
-	// TODO: figure out how to implement with out breaking the displayGrid as an array
+	// TODO: figure out how to implement with out breaking the displayGrid as an array 
 	// and the `cellClick` functionality
 	//
 	// const drawGrid = new Graphics()
@@ -67,9 +67,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 	// app.stage.addChild(drawGrid);
 	app.stage.addChild(board);
 	app.stage.addChild(displayEnemy);
-	app.stage.eventMode = "static";
-	// Make sure the whole canvas area is interactive, not just the circle.
-	app.stage.hitArea = app.screen;
+
 
 	displayGrid = createEmptyGrid().map((row, rowIndex) => {
 		return row.map((cell, colIndex) => {
@@ -118,19 +116,21 @@ export function render(gameState: GameState) {
 	return app;
 }
 
-export function renderBoard(gameState: GameState): void {
+export function renderBoard(app: Application, gameState: GameState): Application {
 	gameState.grid.forEach((row, rowIdx) => {
 		row.forEach((cell, colIdx) => {
-			const square = displayGrid[rowIdx][colIdx];
-			if (cell.type === "path") {
-				square.tint = 0xff0000;
-			} else if (cell.type === "tower") {
-				square.tint = 0x00fff;
-			} else if (cell.type === "empty") {
-				square.tint = 0xffffff;
+			const square = displayGrid[rowIdx][colIdx]
+			if (cell.type === 'path') {
+				square.tint = 0xFF0000
+			} else if (cell.type === 'tower') {
+				square.tint = 0x00fff
+			} else if (cell.type === 'empty') {
+				square.tint = 0xFFFFFF
 			}
-		});
-	});
+		})
+	})
+
+	return app
 }
 
 export function renderEnemies(gameState: GameState) {

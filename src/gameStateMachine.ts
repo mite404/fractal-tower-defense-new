@@ -46,7 +46,7 @@ export const initialGameState: GameState = {
       type: "basic",
       currentHealth: 100,
       maxHealth: 100,
-      speed: , // cells per second
+      speed: 1, // cells per second
       to: mockPath[1],
       currentPosition: mockPath[0],
       gold: 20,

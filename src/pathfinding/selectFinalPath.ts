@@ -6,7 +6,9 @@ import { hasPathToExit } from "./validPath.ts";
 
 // Important functions to outside systems:
 // startFinalPathSelection(state: GameState): GameState | null
+
 // finalPathCellClick(state: GameState, cell: Cell): GameState | null
+
 // submitFinalPath(state: GameState): GameState | null
 
 // FLOW

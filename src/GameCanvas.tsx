@@ -28,7 +28,7 @@ export function GameCanvas() {
         const dt = time - lastTime
         lastTime = time
 
-        // update and render without react state
+        // update loop
         gameStateRef.current = loop(gameStateRef.current)
         updateEnemies(app,gameStateRef.current)
 

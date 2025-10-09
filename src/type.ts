@@ -27,7 +27,8 @@ export type Player = {
     hand: Piece[]; // pieces in the player's hand
 }
 
-export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' | 'exit'
+export type CellType = "empty" | "path" | 'tower' | 'blocked' | 'spawn' |'exit'
+
 
 export type CellSelectionState = 'selected' | 'highlighted';
 
@@ -36,7 +37,7 @@ export type Cell = {
     y: number | null; //row vertical
     // Grid[y][x] refers to the correct cell
     type: CellType;
-    selectionState?: CellSelectionState; //used during final path selection
+    selectionState?: CellSelectionState; //used during final path selection to render a path cell's visual changes as highlighted, selected or implicit neither if attribute is not present in the cell
     occupiedBy?: string;
     terrain?: string //potential different effects later
 }

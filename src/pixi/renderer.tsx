@@ -9,6 +9,7 @@ import { addInput } from '../input.ts';
 let displayGrid: Graphics[][]
 let displayBgTileSprite: Sprite
 let displayEnemy: Container
+export let board: Container
 const enemySprites = new Map<string, Sprite>()
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
@@ -31,7 +32,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   await loadTextures()
 
   // Create and add a container to the stage
-  const boardContainer = new Container();
+  board = new Container();
   displayEnemy = new Container();
 
   // Create the background tileset
@@ -61,7 +62,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
   app.stage.addChild(displayBgTileSprite);
   // app.stage.addChild(drawGrid);
-  app.stage.addChild(boardContainer);
+  app.stage.addChild(board);
   app.stage.addChild(displayEnemy);
 
 
@@ -80,7 +81,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
         addInput({ inputType: "cellClick", cellX: rowIndex, cellY: colIndex })
         console.log("adding to input queue")
       });
-      boardContainer.addChild(square)
+      board.addChild(square)
       return square
     })
   })
@@ -92,15 +93,13 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
 // TODO: I am suspicious of initializing the application on every render.
 // PROBABLY I should have some initialization which occurs separately from every render.
-export function render(app: Application, gameState: GameState) {
+export function render(app: Application, gameState: GameState, board:Container) {
   // render the board
   renderBoard(app, gameState)
 
   renderInventory(app, gameState)
   // TODO render piece sidebar
 
-  // render enemies
-  renderEnemies(app, gameState)
 
   // render projectiles
 
@@ -120,9 +119,9 @@ function renderBoard(app: Application, gameState: GameState): Application {
   return app
 }
 
-function renderEnemies(app: Application, gameState: GameState) {
-  //console.log('renderEnemies called, enemies:', gameState.enemies)
-  //console.log('enemySprites Map size:', enemySprites.size)
+export function updateEnemies(app: Application, gameState: GameState) {
+  console.log('renderEnemies called, enemies:', gameState.enemies)
+  console.log('enemySprites Map size:', enemySprites.size)
 
   gameState.enemies.forEach(enemy => {
     //console.log('Processing enemy:', enemy.id)

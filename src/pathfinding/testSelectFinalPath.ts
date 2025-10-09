@@ -14,7 +14,7 @@ import {
 import { createTestGrid, setCell } from "./helperPath.ts";
 
 // --- Helper to create a fully typed GameState ---
-function createGameState(grid: Grid, spawn: Cell, exit: Cell): GameState {
+export function createGameState(grid: Grid, spawn: Cell, exit: Cell): GameState {
   return {
     player: { ...initialPlayer },
     phase: "Build",

@@ -1,4 +1,4 @@
-import type { Grid, Piece } from "../type";
+import type { GameState, Grid, Piece } from "../type";
 
 export function canPlacePiece(gameState: GameState, piece: Piece, topLeftX: number, topLeftY: number): boolean {
   const transformed = piece.shape;
@@ -50,7 +50,4 @@ export function pickupPiece(gameState:GameState,piece:Piece, topLeftX: number, t
   console.log('pickup at ', topLeftX, topLeftY)
   if (!piece.isPlaced) return
   piece.isPlaced = false
-
-export function placePiece(grid: Grid, piece: Piece, topLeftX: number, topLeftY: number): boolean {
-
 }

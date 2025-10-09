@@ -1,21 +1,23 @@
+export type InputEvent = PiecePickedUp | CellClick | MouseUp;
 
-export type InputEvent = Spacebar | CellClick
-
-export type Spacebar = {}
-
-
+export type PiecePickedUp = { inputType: "piecePickedUp"; pieceId: string };
 export type CellClick = {
-  inputType: 'cellClick'
-  cellX: number,
-  cellY: number,
-}
-let inputQueue: InputEvent[] = []
+	inputType: "cellClick";
+	cellX: number;
+	cellY: number;
+};
+export type MouseUp = {
+	inputType: "mouseup";
+	gridCoordinates: { x: number; y: number } | null;
+};
+
+let inputQueue: InputEvent[] = [];
 export function addInput(input: InputEvent) {
-  inputQueue.push(input)
+	inputQueue.push(input);
 }
 
-export function getInputs(): InputEvent[] {
-  const result = [...inputQueue]
-  inputQueue = []
-  return result
+export function consumeInputs(): InputEvent[] {
+	const result = [...inputQueue];
+	inputQueue = [];
+	return result;
 }

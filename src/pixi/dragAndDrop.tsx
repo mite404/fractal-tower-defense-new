@@ -1,6 +1,7 @@
 import type { Application, Container, FederatedPointerEvent } from "pixi.js";
 import type { GameState, Piece } from "../type";
-import { canPlacePiece } from "../gameEngine/gameLogic";
+import { canPlacePiece, pickupPiece, placePiece } from "../gameEngine/gameLogic";
+import { board } from "./renderer";
 
 export function setupDragAndDrop(
   app: Application,
@@ -60,8 +61,14 @@ export function setupDragAndDrop(
     originParent = piece.parent!;
     originPos = { x: piece.x, y: piece.y };
 
-
     moveToParent(piece, app.stage);
+
+    const placedPiece = gameState.pieces.filter(p=>pieceData.id===p.pieceId)[0] ?? null
+
+    if (placedPiece) pickupPiece(gameState, pieceData, placedPiece.position.x, placedPiece.position.y)
+
+
+    
     const stagePosition = app.stage.toLocal(e.global);
     dragOffset = { x: stagePosition.x - piece.x, y: stagePosition.y - piece.y };
 
@@ -75,21 +82,29 @@ export function setupDragAndDrop(
     piece.position.set(p.x - dragOffset.x, p.y - dragOffset.y);
   });
 
-  const handleUp = (e: FederatedPointerEvent) => {
+  const handleClickUp = (e: FederatedPointerEvent) => {
     if (!dragging) return;
     dragging = false;
 
     const snap = snapToGrid();
     if (!snap) return revert();
 
+    moveToParent(piece, board)
+
     const { gridIdxX, gridIdxY, local } = snap;
-    const valid = canPlacePiece(gameState.grid, pieceData, gridIdxX, gridIdxY);
+    const valid = canPlacePiece(gameState, pieceData, gridIdxX, gridIdxY);
     if (!valid) return revert();
+
+    console.log(gameState)
+
+    placePiece(gameState, pieceData, gridIdxX, gridIdxY)
+
+
 
     piece.position.copyFrom(local);
     piece.alpha = 1;
   };
 
-  piece.on("pointerup", handleUp);
-  piece.on("pointerupoutside", handleUp);
+  piece.on("pointerup", handleClickUp);
+  piece.on("pointerupoutside", handleClickUp);
 }

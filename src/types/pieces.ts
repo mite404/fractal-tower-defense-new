@@ -78,7 +78,7 @@ export const jPiece:Piece = {
 
 export function startingHand():Piece[] {
     return [
-        squarePiece, squarePiece, rectPiece, sPieceA, sPieceB, jPiece 
+        squarePiece, structuredClone(squarePiece), rectPiece, sPieceA, sPieceB, jPiece 
     ]
 }
 

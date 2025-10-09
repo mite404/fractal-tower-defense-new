@@ -26,9 +26,6 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
     resizeTo: window
   });
 
-  // Append the application canvas to the document body
-  document.body.appendChild(app.canvas);
-
   await loadTextures()
 
   // Create and add a container to the stage
@@ -93,7 +90,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
 // TODO: I am suspicious of initializing the application on every render.
 // PROBABLY I should have some initialization which occurs separately from every render.
-export function render(app: Application, gameState: GameState, board: Container) {
+export function render(app: Application, gameState: GameState) {
   // render the board
   renderBoard(app, gameState)
 
@@ -107,12 +104,16 @@ export function render(app: Application, gameState: GameState, board: Container)
   return app
 };
 
-function renderBoard(app: Application, gameState: GameState): Application {
+export function renderBoard(app: Application, gameState: GameState): Application {
   gameState.grid.forEach((row, rowIdx) => {
     row.forEach((cell, colIdx) => {
       const square = displayGrid[rowIdx][colIdx]
       if (cell.type === 'path') {
         square.tint = 0xFF0000
+      }else if (cell.type === 'tower') {
+        square.tint = 0x00fff
+      }else if (cell.type === 'empty') {
+        square.tint = 0xFFFFFF
       }
     })
   })
@@ -121,8 +122,8 @@ function renderBoard(app: Application, gameState: GameState): Application {
 }
 
 export function updateEnemies(app: Application, gameState: GameState) {
-  console.log('renderEnemies called, enemies:', gameState.enemies)
-  console.log('enemySprites Map size:', enemySprites.size)
+  //console.log('renderEnemies called, enemies:', gameState.enemies)
+  //console.log('enemySprites Map size:', enemySprites.size)
 
   gameState.enemies.forEach(enemy => {
     //console.log('Processing enemy:', enemy.id)

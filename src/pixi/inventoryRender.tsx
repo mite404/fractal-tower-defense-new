@@ -5,7 +5,7 @@ import { setupDragAndDrop } from "./dragAndDrop";
 let inventory:Container
 
 export function renderInventory(app: Application, gameState: GameState): Application {
-    console.trace('[RENDER INVENTORY CALLED]');
+
   if (!inventory) {
     inventory = new Container();
     inventory.label = 'inventory';
@@ -81,15 +81,6 @@ export function renderInventory(app: Application, gameState: GameState): Applica
 
     // Add to inventory
     inventory.addChild(pieceContainer)
-    console.log('[INVENTORY DEBUG]',
-  inventory.label,
-  inventory.position,
-  inventory.getBounds(),
-  inventory.toGlobal({x:0, y:0})
-);
-inventory.children.forEach((c, i) => {
-  console.log(`child[${i}]`, c.x, c.y, c.getBounds(), c.toGlobal({x:0, y:0}));
-});
 
     //console.log("piece added to inventory:", piece.id, "parent:", pieceContainer.parent?.label);
 

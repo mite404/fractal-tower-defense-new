@@ -9,6 +9,7 @@ export function GameCanvas() {
   const gameStateRef = useRef(initialGameState)
   const rafId = useRef<number>()
 
+
   useEffect(() => {
     if (!canvasRef.current) return
 
@@ -16,10 +17,13 @@ export function GameCanvas() {
     let lastTime = performance.now()
 
     async function setup() {
+
+      const t0 = performance.now();
       const app = await initApp(canvasRef.current!)
+      console.log('init', performance.now()-t0);
 
       render(app, gameStateRef.current)
-
+      console.log('render complete', performance.now()-t0);
       appRef.current = app
 
       // start manual loop
@@ -29,7 +33,7 @@ export function GameCanvas() {
         lastTime = time
 
         // update loop
-        gameStateRef.current = loop(gameStateRef.current)
+        gameStateRef.current = loop(app, gameStateRef.current)
         updateEnemies(app,gameStateRef.current)
 
 

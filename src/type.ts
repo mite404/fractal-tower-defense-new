@@ -65,7 +65,7 @@ export type Enemy = {
     maxHealth: number;
     armor?: number;
     speed: number;
-    to: PathNode;
+    to: Cell | null;  // updated to Cell type to account for pathfinding | updated to null to account for de-spawning enemies 
     currentPosition: { x: number, y: number }
     gold: number;
 }
@@ -114,19 +114,19 @@ export function createEmptyGrid(): Grid {
     );
 }
 
-export function createSpawn(x: number, y: number) : Cell {
-    const spawn : Cell = {
+export function createSpawn(x: number, y: number): Cell {
+    const spawn: Cell = {
         x,
-        y, 
+        y,
         type: 'spawn',
     }
     return spawn;
 }
 
-export function createExit(x: number, y: number) : Cell {
-    const spawn : Cell = {
+export function createExit(x: number, y: number): Cell {
+    const spawn: Cell = {
         x,
-        y, 
+        y,
         type: 'exit',
     }
     return spawn;
@@ -137,7 +137,7 @@ export const initialGameState: GameState = {
     phase: 'Build',
     grid: createEmptyGrid(),
     spawn: createSpawn(0, 0),
-    exit: createExit(9,9),
+    exit: createExit(9, 9),
     wave: 1,
     enemies: [],
     towers: [],

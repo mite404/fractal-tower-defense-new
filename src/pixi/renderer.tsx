@@ -86,14 +86,14 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
     })
   })
 
-  
+
 
   return app
 }
 
 // TODO: I am suspicious of initializing the application on every render.
 // PROBABLY I should have some initialization which occurs separately from every render.
-export function render(app: Application, gameState: GameState, board:Container) {
+export function render(app: Application, gameState: GameState, board: Container) {
   // render the board
   renderBoard(app, gameState)
 
@@ -140,5 +140,21 @@ export function updateEnemies(app: Application, gameState: GameState) {
     sprite.y = enemy.currentPosition.y * 60
   })
 
+  // compares sprite cache to what's in current gameState
+  const currentEnemyIds = new Set(gameState.enemies.map(e => e.id))
+
+  enemySprites.forEach((sprite, id) => {
+    // if enemy sprite no longer in gameState
+    if (!currentEnemyIds.has(id)) {
+      sprite.destroy()  // Clean up GPU resources
+      enemySprites.delete(id)  // remove from Map
+    }
+  })
+
   return app
 }
+
+// write export updateSelectionState() that checks all path cells within gameState grid if changed render different color
+// look in gameState for all cells that have: selected = green, highlighted path = yellow, 
+// so we can update game board 
+// if neither the cell goes back to what it was before empty = grey, path = brown

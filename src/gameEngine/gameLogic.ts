@@ -1,3 +1,4 @@
+import type { Container } from "pixi.js";
 import type { GameState, Grid, Piece, PlacedPiece } from "../type";
 
 export function canPlacePiece(grid: Grid, piece: Piece, topLeftX: number, topLeftY: number): boolean {
@@ -59,4 +60,23 @@ export function applyPiecePlacement(gameState: GameState, piece: Piece, topLeftX
   }
 
   return gameState;
+}
+
+// helper for your game logic
+export function rotateAroundTopLeft(piece: Container, deg: number) {
+  const before = piece.getBounds();
+  piece.rotation = (piece.rotation + (deg * Math.PI) / 180) % (2 * Math.PI);
+  const after = piece.getBounds();
+  piece.position.x += before.x - after.x;
+  piece.position.y += before.y - after.y;
+}
+
+export function flipAroundCenter(piece: Container) {
+  const before = piece.getBounds();
+  piece.pivot.x = piece.width / 2;
+  piece.position.x += piece.width / 2;
+  piece.scale.x *= -1;
+  const after = piece.getBounds();
+  piece.position.x += before.x - after.x;
+  piece.position.y += before.y - after.y;
 }

@@ -1,51 +1,51 @@
-import { useEffect, useRef, useState } from 'react';
-import { initApp, initGame, render } from './pixi/renderer'
-// import { initialGameState } from './type';
-import type { Application } from 'pixi.js';
-import { loop } from './gameStateMachine';
-import { initialGameState } from './gameStateMachine';
+import { useEffect, useRef } from 'react'
+import { initApp, render, updateEnemies } from './pixi/renderer'
+import { loop, initialGameState } from './gameStateMachine'
+import type { Application } from 'pixi.js'
 
-let setup = false
 export function GameCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const appRef = useRef<Application>(null)
-  const [gameState, setGameState] = useState(initialGameState)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const appRef = useRef<Application>()
+  const gameStateRef = useRef(initialGameState)
+  const rafId = useRef<number>()
 
-  async function setupPixi(canvas: HTMLCanvasElement) {
-    if (!appRef.current) {
-      const app = await initApp(canvas)
+  useEffect(() => {
+    if (!canvasRef.current) return
+
+    let running = true
+    let lastTime = performance.now()
+
+    async function setup() {
+      const app = await initApp(canvasRef.current!)
+
+      render(app, gameStateRef.current)
+
       appRef.current = app
-    }
-  }
 
-  // SETUP the app
-  useEffect(() => {
-    if (canvasRef.current) {
-      setupPixi(canvasRef.current)
+      // start manual loop
+      const tick = (time: number) => {
+        if (!running) return
+        const dt = time - lastTime
+        lastTime = time
+
+        // update and render without react state
+        gameStateRef.current = loop(gameStateRef.current)
+        updateEnemies(app,gameStateRef.current)
+
+
+        rafId.current = requestAnimationFrame(tick)
+      }
+      rafId.current = requestAnimationFrame(tick)
     }
 
-  }, [canvasRef])
+    setup()
 
-  useEffect(() => {
-    if (setup) {
-      return
+    return () => {
+      running = false
+      if (rafId.current) cancelAnimationFrame(rafId.current)
+      appRef.current?.destroy(true)
     }
-    setup = true
-    console.log("setting up game loop")
-    setInterval(() => {
-      setGameState((prev) => {
-        const updated = loop(prev)
-        return updated
-      })
-    }, 16)
   }, [])
-
-  // RE-RENDERS the app, whenever state changes
-  useEffect(() => {
-    if (canvasRef.current && appRef.current) {
-      render(appRef.current, gameState)
-    }
-  }, [gameState]);
 
   return <canvas ref={canvasRef} />
 }

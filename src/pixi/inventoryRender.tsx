@@ -1,13 +1,24 @@
-import { Graphics, Container, Application, FederatedPointerEvent } from "pixi.js";
+import { Graphics, Container, Application} from "pixi.js";
 import type { GameState } from "../type";
 import { setupDragAndDrop } from "./dragAndDrop";
 
-
-
-const inventory = new Container()
+let inventory:Container
 
 export function renderInventory(app: Application, gameState: GameState): Application {
-  app.stage.addChild(inventory)
+    console.trace('[RENDER INVENTORY CALLED]');
+  if (!inventory) {
+    inventory = new Container();
+    inventory.label = 'inventory';
+    app.stage.addChild(inventory);
+  } else {
+    inventory.removeChildren();
+  }
+
+  //console.log("inventory.parent after add:", inventory.parent?.label);
+
+
+  // clear old contents
+  inventory.removeChildren();
 
   let endY = 10 // Start at top padding
   let endX = 750 // Start of sidebar
@@ -15,6 +26,7 @@ export function renderInventory(app: Application, gameState: GameState): Applica
   const MAX_Y = 720 // 12 * 60 = height of grid
 
 
+  
 
   gameState.player.hand.forEach((piece) => {
     const pieceContainer = new Container()
@@ -38,7 +50,8 @@ export function renderInventory(app: Application, gameState: GameState): Applica
       endX += maxX + 70; // Move to next column (adjust width as needed)
       endY = 10;   // Reset to top
     }
-
+    if (!piece) return;
+//console.log("INIT piece:", piece.id);
     piece.shape.forEach((row, rowidx) => {
       row.forEach((cell, colIdx) => {
         if (cell.type === "empty") return;
@@ -58,8 +71,7 @@ export function renderInventory(app: Application, gameState: GameState): Applica
           cellGraphics.fill(color)
         cellGraphics.stroke({ width: 1, color: 0x333333 })
 
-        pieceContainer.x = endX + piecePaddingX
-        pieceContainer.y = endY
+        //console.log("ADDING CELL to piece:", piece.id, "parent before addChild:", pieceContainer.parent?.label);
 
         pieceContainer.addChild(cellGraphics)
         maxX = Math.max(maxX, colIdx * 60 + piecePaddingX)
@@ -69,6 +81,18 @@ export function renderInventory(app: Application, gameState: GameState): Applica
 
     // Add to inventory
     inventory.addChild(pieceContainer)
+    console.log('[INVENTORY DEBUG]',
+  inventory.label,
+  inventory.position,
+  inventory.getBounds(),
+  inventory.toGlobal({x:0, y:0})
+);
+inventory.children.forEach((c, i) => {
+  console.log(`child[${i}]`, c.x, c.y, c.getBounds(), c.toGlobal({x:0, y:0}));
+});
+
+    //console.log("piece added to inventory:", piece.id, "parent:", pieceContainer.parent?.label);
+
 
     setupDragAndDrop(app, pieceContainer, gameState, piece)
 

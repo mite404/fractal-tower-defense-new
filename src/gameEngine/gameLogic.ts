@@ -1,4 +1,4 @@
-import type { GameState, Piece, PlacedPiece } from "../type";
+import type { Grid, Piece } from "../type";
 
 export function canPlacePiece(gameState: GameState, piece: Piece, topLeftX: number, topLeftY: number): boolean {
   const transformed = piece.shape;
@@ -51,14 +51,6 @@ export function pickupPiece(gameState:GameState,piece:Piece, topLeftX: number, t
   if (!piece.isPlaced) return
   piece.isPlaced = false
 
-    for (let r = 0; r < piece.shape.length; r++) {
-    for (let c = 0; c < piece.shape[r].length; c++) {
-      const gx = topLeftX + c
-      const gy = topLeftY + r
+export function placePiece(grid: Grid, piece: Piece, topLeftX: number, topLeftY: number): boolean {
 
-      gameState.grid[gy][gx].type = 'empty'
-    }
-  }
-    const i = gameState.pieces.findIndex(p => p.id === piece.id);
-  if (i !== -1) gameState.pieces.splice(i, 1);
-} 
+}

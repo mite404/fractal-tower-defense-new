@@ -1,161 +1,170 @@
-import { Application, Container, Sprite, Graphics } from 'pixi.js';
-import { type GameState, createEmptyGrid } from '../type';
-import { enemyDummyTexture, bgTileTexture } from './textures';
+import {
+	Application,
+	Container,
+	Sprite,
+	Graphics,
+	type PointData,
+} from "pixi.js";
+import { type GameState, createEmptyGrid } from "../type";
+import { enemyDummyTexture, bgTileTexture } from "./textures";
 import { loadTextures } from "./textures.ts";
-import { renderInventory } from './inventoryRender.tsx';
-import { addInput } from '../input.ts';
+import { renderInventory } from "./inventoryRender.tsx";
+import { addInput } from "../input.ts";
 
-
-let displayGrid: Graphics[][]
-let displayBgTileSprite: Sprite
-let displayEnemy: Container
-export let board: Container
-const enemySprites = new Map<string, Sprite>()
+let app: Application;
+let displayGrid: Graphics[][];
+let displayBgTileSprite: Sprite;
+let displayEnemy: Container;
+export let board: Container;
+const enemySprites = new Map<string, Sprite>();
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
-  // TODO: pull out any init stuff from the render function and put it in here.
+	// TODO: pull out any init stuff from the render function and put it in here.
 
-  // also: call this function over in the GameCanvas whenever it mounts (via useEffect)
-  // Create a new application
-  const app = new Application();
+	// also: call this function over in the GameCanvas whenever it mounts (via useEffect)
+	// Create a new application
+	app = new Application();
 
-  // Initialize the application
-  await app.init({
-    background: '#4C4C4C',
-    canvas,
-    resizeTo: window
-  });
+	// Initialize the application
+	await app.init({
+		background: "#4C4C4C",
+		canvas,
+		resizeTo: window,
+	});
 
-  await loadTextures()
+	await loadTextures();
 
-  // Create and add a container to the stage
-  board = new Container();
-  displayEnemy = new Container();
+	// Create and add a container to the stage
+	board = new Container();
+	displayEnemy = new Container();
 
-  // Create the background tileset
-  displayBgTileSprite = new Sprite(bgTileTexture)
-  displayBgTileSprite.width = 600;
-  displayBgTileSprite.height = 600;
-  displayBgTileSprite.x = 0;
-  displayBgTileSprite.y = 0;
+	// Create the background tileset
+	displayBgTileSprite = new Sprite(bgTileTexture);
+	displayBgTileSprite.width = 600;
+	displayBgTileSprite.height = 600;
+	displayBgTileSprite.x = 0;
+	displayBgTileSprite.y = 0;
 
-  // A WAY TO DRAW A GRID ONCE INSTEAD OF EVERY FRAME
-  // TODO: figure out how to implement with out breaking the displayGrid as an array 
-  // and the `cellClick` functionality
-  //
-  // const drawGrid = new Graphics()
+	// A WAY TO DRAW A GRID ONCE INSTEAD OF EVERY FRAME
+	// TODO: figure out how to implement with out breaking the displayGrid as an array
+	// and the `cellClick` functionality
+	//
+	// const drawGrid = new Graphics()
 
-  // // vertical grid lines
-  // for (let i = 0; i <= 10; i++) {
-  //   drawGrid.moveTo(i * 60, 0).lineTo(i * 60, 600);
-  // }
+	// // vertical grid lines
+	// for (let i = 0; i <= 10; i++) {
+	//   drawGrid.moveTo(i * 60, 0).lineTo(i * 60, 600);
+	// }
 
-  // // horizontal grid lines
-  // for (let i = 0; i <= 10; i++) {
-  //   drawGrid.moveTo(0, i * 60).lineTo(600, i * 60);
-  // }
+	// // horizontal grid lines
+	// for (let i = 0; i <= 10; i++) {
+	//   drawGrid.moveTo(0, i * 60).lineTo(600, i * 60);
+	// }
 
-  // drawGrid.stroke({ width: 1, color: 0x00ff00 })
+	// drawGrid.stroke({ width: 1, color: 0x00ff00 })
 
-  app.stage.addChild(displayBgTileSprite);
-  // app.stage.addChild(drawGrid);
-  app.stage.addChild(board);
-  app.stage.addChild(displayEnemy);
+	app.stage.addChild(displayBgTileSprite);
+	// app.stage.addChild(drawGrid);
+	app.stage.addChild(board);
+	app.stage.addChild(displayEnemy);
+	app.stage.eventMode = "static";
+	// Make sure the whole canvas area is interactive, not just the circle.
+	app.stage.hitArea = app.screen;
 
+	displayGrid = createEmptyGrid().map((row, rowIndex) => {
+		return row.map((cell, colIndex) => {
+			const square = new Graphics()
+				.rect(colIndex * 60, rowIndex * 60, 60, 60)
+				.fill({ color: 0xaaaaaa, alpha: 200 })
+				.stroke(0x00ff00);
+			square.eventMode = "static";
 
-  displayGrid = createEmptyGrid().map((row, rowIndex) => {
-    return row.map((cell, colIndex) => {
-      const square = new Graphics()
-        .rect((colIndex * 60), (rowIndex * 60), 60, 60)
-        .fill({ color: 0xAAAAAA, alpha: 200 })
-        .stroke(0x00ff00)
-      square.eventMode = 'static';
+			square.on("pointerdown", (event) => {
+				// do we want to standardize this to the 2D array defaults?? e.g.
+				// cellX: colIndex  // column = x
+				// cellY: rowIndex  // row = y
+				addInput({
+					inputType: "cellClick",
+					cellX: rowIndex,
+					cellY: colIndex,
+				});
+				console.log("adding to input queue");
+			});
+			square.on("pointerup", (e) => {
+				console.log("pointer up!", rowIndex, colIndex);
+				addInput({
+					inputType: "mouseup",
+					gridCoordinates: { x: rowIndex, y: colIndex },
+				});
+			});
+			board.addChild(square);
+			return square;
+		});
+	});
 
-      square.on('pointerdown', (event) => {
-        // do we want to standardize this to the 2D array defaults?? e.g. 
-        // cellX: colIndex  // column = x
-        // cellY: rowIndex  // row = y
-        addInput({ inputType: "cellClick", cellX: rowIndex, cellY: colIndex })
-        console.log("adding to input queue")
-      });
-      board.addChild(square)
-      return square
-    })
-  })
-
-
-
-  return app
+	return app;
 }
 
-// TODO: I am suspicious of initializing the application on every render.
-// PROBABLY I should have some initialization which occurs separately from every render.
-export function render(app: Application, gameState: GameState) {
-  // render the board
-  renderBoard(app, gameState)
+export function render(gameState: GameState) {
+	// render the board
+	renderBoard(gameState);
+	renderInventory(app, gameState);
+	// TODO render piece sidebar
 
-  renderInventory(app, gameState)
-  // TODO render piece sidebar
+	// render enemies
 
-  // render enemies
+	// render projectiles
 
-  // render projectiles
-
-  return app
-};
-
-export function renderBoard(app: Application, gameState: GameState): Application {
-  gameState.grid.forEach((row, rowIdx) => {
-    row.forEach((cell, colIdx) => {
-      const square = displayGrid[rowIdx][colIdx]
-      if (cell.type === 'path') {
-        square.tint = 0xFF0000
-      }else if (cell.type === 'tower') {
-        square.tint = 0x00fff
-      }else if (cell.type === 'empty') {
-        square.tint = 0xFFFFFF
-      }
-    })
-  })
-
-  return app
+	return app;
 }
 
-export function updateEnemies(app: Application, gameState: GameState) {
-  //console.log('renderEnemies called, enemies:', gameState.enemies)
-  //console.log('enemySprites Map size:', enemySprites.size)
+export function renderBoard(gameState: GameState): void {
+	gameState.grid.forEach((row, rowIdx) => {
+		row.forEach((cell, colIdx) => {
+			const square = displayGrid[rowIdx][colIdx];
+			if (cell.type === "path") {
+				square.tint = 0xff0000;
+			} else if (cell.type === "tower") {
+				square.tint = 0x00fff;
+			} else if (cell.type === "empty") {
+				square.tint = 0xffffff;
+			}
+		});
+	});
+}
 
-  gameState.enemies.forEach(enemy => {
-    //console.log('Processing enemy:', enemy.id)
+export function renderEnemies(gameState: GameState) {
+	//console.log('renderEnemies called, enemies:', gameState.enemies)
+	//console.log('enemySprites Map size:', enemySprites.size)
 
-    if (!enemySprites.has(enemy.id)) {
-      //console.log('Creating new sprite for:', enemy.id)
-      const sprite = new Sprite(enemyDummyTexture)
-      enemySprites.set(enemy.id, sprite)
-      displayEnemy.addChild(sprite)
-    }
+	gameState.enemies.forEach((enemy) => {
+		//console.log('Processing enemy:', enemy.id)
 
-    const sprite = enemySprites.get(enemy.id)!
-    //console.log('Setting sprite position:', enemy.currentPosition)
-    sprite.x = enemy.currentPosition.x * 60
-    sprite.y = enemy.currentPosition.y * 60
-  })
+		if (!enemySprites.has(enemy.id)) {
+			//console.log('Creating new sprite for:', enemy.id)
+			const sprite = new Sprite(enemyDummyTexture);
+			enemySprites.set(enemy.id, sprite);
+			displayEnemy.addChild(sprite);
+		}
 
-  // compares sprite cache to what's in current gameState
-  const currentEnemyIds = new Set(gameState.enemies.map(e => e.id))
+		const sprite = enemySprites.get(enemy.id)!;
+		sprite.x = enemy.currentPosition.x * 60;
+		sprite.y = enemy.currentPosition.y * 60;
+	});
 
-  enemySprites.forEach((sprite, id) => {
-    // if enemy sprite no longer in gameState
-    if (!currentEnemyIds.has(id)) {
-      sprite.destroy()  // Clean up GPU resources
-      enemySprites.delete(id)  // remove from Map
-    }
-  })
+	// compares sprite cache to what's in current gameState
+	const currentEnemyIds = new Set(gameState.enemies.map((e) => e.id));
 
-  return app
+	enemySprites.forEach((sprite, id) => {
+		// if enemy sprite no longer in gameState
+		if (!currentEnemyIds.has(id)) {
+			sprite.destroy(); // Clean up GPU resources
+			enemySprites.delete(id); // remove from Map
+		}
+	});
 }
 
 // write export updateSelectionState() that checks all path cells within gameState grid if changed render different color
-// look in gameState for all cells that have: selected = green, highlighted path = yellow, 
-// so we can update game board 
+// look in gameState for all cells that have: selected = green, highlighted path = yellow,
+// so we can update game board
 // if neither the cell goes back to what it was before empty = grey, path = brown

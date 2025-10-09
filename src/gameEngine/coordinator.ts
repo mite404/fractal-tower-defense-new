@@ -1,0 +1,22 @@
+import { loop } from "../gameStateMachine";
+import { consumeInputs } from "../input";
+import { initApp, render } from "../pixi/renderer";
+import { initialGameState, type GameState } from "../type";
+
+let gameState: GameState = initialGameState;
+
+export async function init(canvas: HTMLCanvasElement) {
+	console.log("setting up my game");
+	// init renderer
+	initApp(canvas);
+	// setup loop
+	setInterval(() => {
+		// 60 times per second (every 16 ms):
+		// 1. collect inputs
+		const inputs = consumeInputs();
+		// 2. update game state
+		gameState = loop(inputs, gameState);
+		// 3. render game state
+		render(gameState);
+	}, 16);
+}

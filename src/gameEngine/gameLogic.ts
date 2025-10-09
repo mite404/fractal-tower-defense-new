@@ -1,5 +1,4 @@
-import type { Container } from "pixi.js";
-import type { GameState, Grid, Piece, PlacedPiece } from "../type";
+import type { Grid, Piece } from "../type";
 
 export function canPlacePiece(grid: Grid, piece: Piece, topLeftX: number, topLeftY: number): boolean {
     const transformed = piece.shape;
@@ -20,6 +19,6 @@ export function canPlacePiece(grid: Grid, piece: Piece, topLeftX: number, topLef
     return true;
 }
 
-export function placePiece(grid:Grid, piece:Piece, topLeftX:number, topLeftY:number):boolean {
-  const
+export function placePiece(grid: Grid, piece: Piece, topLeftX: number, topLeftY: number): boolean {
+
 }

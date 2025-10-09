@@ -100,6 +100,7 @@ export function render(app: Application, gameState: GameState, board:Container) 
   renderInventory(app, gameState)
   // TODO render piece sidebar
 
+  // render enemies
 
   // render projectiles
 

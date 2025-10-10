@@ -97,7 +97,7 @@ export type Tower = {
 	sell?: number;
 };
 
-export type Phase = "Build" | "Defense" | "End" | "Shop";
+export type Phase = "Build" | "ConfirmPath" | "Defense" | "End" | "Shop";
 
 export const initialPlayer: Player = {
 	currentHealth: 100,

@@ -7,8 +7,8 @@ import {
 	type Cell,
 } from "./type";
 import { defaultTower } from "./types/pieces";
-import { GameState } from "./type";
 import { placePiece } from "./gameEngine/gameLogic";
+
 
 // export type Cell = {
 //   x: number | null; //col horizontal
@@ -61,7 +61,15 @@ export const initialGameState: GameState = {
 
 export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 	const newGameState = structuredClone(gameState);
-	handleInputs(inputs, newGameState);
+	if (gameState.phase === "Build") {
+		buildPhase(inputs, newGameState);
+	}
+	if (gameState.phase === "ConfirmPath") {
+		//console.log("Confirm Path Phase");
+		//gameState = testFinalPathGameStates[5];
+	}
+
+	//FIXME Everything below here should not be here. Needs to be moved.
 	// set wave state
 	gameState.wave += 1;
 
@@ -78,7 +86,7 @@ export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 	return newGameState;
 }
 
-function handleInputs(inputs: InputEvent[], gameState: GameState) {
+function buildPhase(inputs: InputEvent[], gameState: GameState) {
 	inputs.forEach((input) => {
 		if (input.inputType == "cellClick") {
 			updateGridWithClicks(gameState, input);
@@ -107,7 +115,7 @@ function handleMouseUp(event: MouseUp, gameState: GameState) {
 				"picked up non-existent piece??? YELL AT TEAMMATES"
 			);
 		}
-    // TODO canPlacePiece
+		// TODO canPlacePiece
 		placePiece(
 			gameState,
 			piece,

@@ -95,6 +95,7 @@ function handleInputs(inputs: InputEvent[], gameState: GameState) {
 }
 
 function handleMouseUp(event: MouseUp, gameState: GameState) {
+  console.log('attempting to drop')
 	const pickedUpId = gameState.player.piecePickedUp;
 	if (!pickedUpId) {
 		return;

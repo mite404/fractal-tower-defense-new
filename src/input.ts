@@ -1,6 +1,7 @@
 export type InputEvent = PiecePickedUp | CellClick | MouseUp;
 
 export type PiecePickedUp = { inputType: "piecePickedUp"; pieceId: string };
+
 export type CellClick = {
 	inputType: "cellClick";
 	cellX: number;

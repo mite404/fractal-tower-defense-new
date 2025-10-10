@@ -8,7 +8,7 @@ import {
 } from "./type";
 import { defaultTower } from "./types/pieces";
 import { placePiece } from "./gameEngine/gameLogic";
-import { testFinalPathGameStates } from "./pathfinding/testFinalPathsRendering";
+
 
 // export type Cell = {
 //   x: number | null; //col horizontal
@@ -65,10 +65,8 @@ export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 		buildPhase(inputs, newGameState);
 	}
 	if (gameState.phase === "ConfirmPath") {
-		console.log("Confirm Path Phase");
-	}
-	if (gameState.phase === "Defense") {
-		console.log("Defense Phase");
+		//console.log("Confirm Path Phase");
+		//gameState = testFinalPathGameStates[5];
 	}
 
 	//FIXME Everything below here should not be here. Needs to be moved.

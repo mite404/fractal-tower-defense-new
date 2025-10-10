@@ -14,7 +14,7 @@ export function createEmptyGameState(
 ): GameState {
 	return {
 		player: { ...initialPlayer },
-		phase: "Build",
+		phase: "ConfirmPath",
 		grid,
 		spawn,
 		exit,
@@ -64,10 +64,16 @@ const testGrid5 = testGrid4;
 const testState5: GameState = createEmptyGameState(testGrid5, spawn2, exit1);
 
 //testState5 SHOULD fail
-export const testFinalPathGameStates: GameState[] = [testState1, testState2, testState3, testState4, testState5];
+export const testFinalPathGameStates: GameState[] = [
+	testState1,
+	testState2,
+	testState3,
+	testState4,
+	testState5,
+];
 
-
+console.log("Creating final path test states");
 testFinalPathGameStates.forEach((state, i) => {
-	console.log(`====== Grid ${i} ======`);
-	printGrid(state.grid, state.spawn, state.exit);
+	console.log(`====== Grid ${i + 1} ======`);
+	//printGrid(state.grid, state.spawn, state.exit);
 });

@@ -5,12 +5,13 @@ import {
 	Graphics,
 	type PointData,
 } from "pixi.js";
-import { type GameState, createEmptyGrid } from "../type";
+import { type Cell, type GameState, createEmptyGrid } from "../type";
 import { enemyDummyTexture, bgTileTexture } from "./textures";
 import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
 import { initUI, updateUI } from "./renderUI.ts";
+import { GameCanvas } from "../GameCanvas";
 
 let app: Application;
 let displayGrid: Graphics[][];
@@ -113,14 +114,28 @@ export function render(gameState: GameState) {
 	// render the board
 	renderBoard(gameState);
 	if (gameState.phase === "Build") renderInventory(app, gameState);
-  updateUI(gameState)
+	updateUI(gameState);
 	// TODO render piece sidebar
 
 	// render enemies
-  renderEnemies(gameState)
+	renderEnemies(gameState);
 	// render projectiles
 
 	return app;
+}
+
+function isSpawn(gameState: GameState, cell: Cell): boolean {
+	if (cell.x === gameState.spawn.x && cell.y === gameState.spawn.y) {
+		return true;
+	}
+	return false;
+}
+
+function isExit(gameState: GameState, cell: Cell): boolean {
+	if (cell.x === gameState.exit.x && cell.y === gameState.exit.y) {
+		return true;
+	}
+	return false;
 }
 
 export function renderBoard(gameState: GameState): void {
@@ -133,6 +148,10 @@ export function renderBoard(gameState: GameState): void {
 				square.tint = 0xff0000;
 			} else if (cell.type === "tower") {
 				square.tint = 0x00fff;
+			} else if (isSpawn(gameState, cell)) {
+				square.tint = 0x008000;
+			} else if (isExit(gameState, cell)) {
+				square.tint = 0xff00ff;
 			} else if (cell.type === "empty") {
 				square.tint = 0xffffff;
 			}
@@ -145,7 +164,7 @@ export function renderEnemies(gameState: GameState) {
 	//console.log('enemySprites Map size:', enemySprites.size)
 
 	gameState.enemies.forEach((enemy) => {
-		console.log('Processing enemy:', enemy.id)
+		console.log("Processing enemy:", enemy.id);
 
 		if (!enemySprites.has(enemy.id)) {
 			//console.log('Creating new sprite for:', enemy.id)

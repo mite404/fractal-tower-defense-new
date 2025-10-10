@@ -1,5 +1,11 @@
 import { moveEnemyTowardTarget } from "./enemyMovement";
-import type { buttonClick, CellClick, InputEvent, MouseUp, PiecePickedUp } from "./input";
+import type {
+	buttonClick,
+	CellClick,
+	InputEvent,
+	MouseUp,
+	PiecePickedUp,
+} from "./input";
 import {
 	type GameState,
 	createEmptyGrid,
@@ -7,9 +13,9 @@ import {
 	type Cell,
 } from "./type";
 import { defaultTower } from "./types/pieces";
-import { GameState } from "./type";
+import { GameState } from './type';
 import { canPlacePiece, placePiece } from "./gameEngine/gameLogic";
-
+import { startFinalPathSelection } from "./pathfinding/selectFinalPath";
 
 // export type Cell = {
 //   x: number | null; //col horizontal
@@ -68,6 +74,7 @@ export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 	if (gameState.phase === "ConfirmPath") {
 		//console.log("Confirm Path Phase");
 		//gameState = testFinalPathGameStates[5];
+		confirmPath(inputs, newGameState);
 	}
 
 	//FIXME Everything below here should not be here. Needs to be moved.
@@ -95,22 +102,30 @@ function buildPhase(inputs: InputEvent[], gameState: GameState) {
 			handlePiecePickedUp(gameState, input);
 		} else if (input.inputType == "mouseup") {
 			handleMouseUp(input, gameState);
-		} else if  (input.inputType = 'buttonclick'){
-      handleButtonClick(input, gameState)
-    } else {
+		} else if ((input.inputType = "buttonclick")) {
+			handleButtonClick(input, gameState);
+		} else {
 			throw new Error(
 				"WHAT TYPE IS THIS??? NOT HANDLED!!! BLAME YOUR TEAMMATES!!"
-			)}
-		})
-	};
+			);
+		}
+	});
+}
 
-function handleButtonClick(event: buttonClick, gameState: GameState){
-  console.log('switching phases')
-  gameState.phase === 'Build' ? gameState.phase = "Defense" : gameState.phase = 'Build'
+function confirmPath((inputs: InputEvent[], gameState: GameState)) {
+	console.log("In Confirm Path");
+	startFinalPathSelection(gameState)
+}
+
+function handleButtonClick(event: buttonClick, gameState: GameState) {
+	console.log("switching phases");
+	gameState.phase === "Build"
+		? (gameState.phase = "Defense")
+		: (gameState.phase = "Build");
 }
 
 function handleMouseUp(event: MouseUp, gameState: GameState) {
-  console.log('attempting to drop')
+	console.log("attempting to drop");
 	const pickedUpId = gameState.player.piecePickedUp;
 	if (!pickedUpId) {
 		return;
@@ -123,7 +138,15 @@ function handleMouseUp(event: MouseUp, gameState: GameState) {
 				"picked up non-existent piece??? YELL AT TEAMMATES"
 			);
 		}
-    if(canPlacePiece(gameState,piece,event.gridCoordinates.x,event.gridCoordinates.y)) {}
+		if (
+			canPlacePiece(
+				gameState,
+				piece,
+				event.gridCoordinates.x,
+				event.gridCoordinates.y
+			)
+		) {
+		}
 		placePiece(
 			gameState,
 			piece,

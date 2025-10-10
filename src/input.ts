@@ -4,7 +4,7 @@ export type PiecePickedUp = { inputType: "piecePickedUp"; pieceId: string };
 
 export type CellClick = {
 	inputType: "cellClick";
-	cellX: number;
+	cellY: number;
 	cellY: number;
 };
 export type MouseUp = {

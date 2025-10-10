@@ -9,7 +9,7 @@ import { enemyDummyTexture, bgTileTexture, tower01Texture } from "./textures";
 import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
-import { initUI, updateUI } from "./renderUI.ts";
+import { initUI } from "./renderUI.ts";
 
 let app: Application;
 let displayGrid: Graphics[][];
@@ -36,7 +36,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
 	await loadTextures();
 
-  await initUI(app)
+	await initUI(app)
 
 	// Create and add a container to the stage
 	board = new Container();
@@ -71,8 +71,8 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 				// cellY: rowIndex  // row = y
 				addInput({
 					inputType: "cellClick",
-					cellX: colIndex,
 					cellY: rowIndex,
+					cellY: colIndex,
 				});
 				console.log("adding to input queue");
 			});

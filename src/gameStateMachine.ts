@@ -1,4 +1,3 @@
-import { moveEnemyTowardTarget } from "./enemyMovement";
 import type {
 	buttonClick,
 	CellClick,
@@ -13,12 +12,9 @@ import {
 	type Cell,
 } from "./type";
 import { defaultTower } from "./types/pieces";
-import { GameState } from "./type";
 import { canPlacePiece, placePiece } from "./gameEngine/gameLogic";
 import {
-	finalPathCellClick,
-	selectCellFinalPath,
-	startFinalPathSelection,
+	finalPathCellClick, startFinalPathSelection
 } from "./pathfinding/selectFinalPath";
 
 // export type Cell = {

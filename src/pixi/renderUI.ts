@@ -56,7 +56,7 @@ export async function initUI(app: Application): Promise<void> {
 			align: "center",
 		},
 		scale: 2,
-		position: { x: 50, y: 750 },
+		position: { x: 50, y: 650 },
 	});
 	app.stage.addChild(pathText);
 
@@ -66,8 +66,8 @@ export async function initUI(app: Application): Promise<void> {
 	textRect.fill("#762222ff");
 	textRect.stroke({ width: 2, color: "#FFD600" });
 	textRect.eventMode = "static";
-	app.stage.addChild(textRect);
-	app.stage.addChild(text);
+	//app.stage.addChild(textRect);
+	//app.stage.addChild(text);
 
 	textRect.on("pointertap", (e) => {
 		console.log(e, "button clicked");
@@ -78,5 +78,5 @@ export async function initUI(app: Application): Promise<void> {
 export function updateUI(gameState: GameState) {
 	if (!text || !pathText) return;
 	text.text = gameState.phase;
-	pathText.visible = gameState.validFinalPath;
+	pathText.visible = gameState.finalPath != null;
 }

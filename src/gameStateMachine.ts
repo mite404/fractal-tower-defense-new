@@ -8,7 +8,7 @@ import {
 } from "./type";
 import { defaultTower } from "./types/pieces";
 import { GameState } from "./type";
-import { canPlacePiece, placePiece } from "./gameEngine/gameLogic";
+import { canPlacePiece, pickupPiece, placePiece } from "./gameEngine/gameLogic";
 
 
 // export type Cell = {
@@ -95,22 +95,23 @@ function buildPhase(inputs: InputEvent[], gameState: GameState) {
 			handlePiecePickedUp(gameState, input);
 		} else if (input.inputType == "mouseup") {
 			handleMouseUp(input, gameState);
-		} else if  (input.inputType = 'buttonclick'){
-      handleButtonClick(input, gameState)
-    } else {
+		} else if (input.inputType = 'buttonclick') {
+			handleButtonClick(input, gameState)
+		} else {
 			throw new Error(
 				"WHAT TYPE IS THIS??? NOT HANDLED!!! BLAME YOUR TEAMMATES!!"
-			)}
-		})
-	};
+			)
+		}
+	})
+};
 
-function handleButtonClick(event: buttonClick, gameState: GameState){
-  console.log('switching phases')
-  gameState.phase === 'Build' ? gameState.phase = "Defense" : gameState.phase = 'Build'
+function handleButtonClick(event: buttonClick, gameState: GameState) {
+	console.log('switching phases')
+	gameState.phase === 'Build' ? gameState.phase = "Defense" : gameState.phase = 'Build'
 }
 
 function handleMouseUp(event: MouseUp, gameState: GameState) {
-  console.log('attempting to drop')
+	console.log('attempting to drop')
 	const pickedUpId = gameState.player.piecePickedUp;
 	if (!pickedUpId) {
 		return;
@@ -123,13 +124,15 @@ function handleMouseUp(event: MouseUp, gameState: GameState) {
 				"picked up non-existent piece??? YELL AT TEAMMATES"
 			);
 		}
-    if(canPlacePiece(gameState,piece,event.gridCoordinates.x,event.gridCoordinates.y)) {}
-		placePiece(
-			gameState,
-			piece,
-			event.gridCoordinates.x,
-			event.gridCoordinates.y
-		);
+		if (canPlacePiece(gameState, piece, event.gridCoordinates.x, event.gridCoordinates.y)) {
+			placePiece(
+				gameState,
+				piece,
+				event.gridCoordinates.x,
+				event.gridCoordinates.y
+			);
+		}
+		console.log('piece picked up set to tnull')
 		gameState.player.piecePickedUp = null;
 	}
 }
@@ -138,6 +141,10 @@ function updateGridWithClicks(
 	gameState: GameState,
 	cellClickEvent: CellClick
 ): void {
+	if (gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].occupiedBy) {
+		pickupPiece(gameState,cellClickEvent.cellX,cellClickEvent.cellY)
+
+	} else {
 	if (
 		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
 		"path"
@@ -167,6 +174,9 @@ function updateGridWithClicks(
 		console.log("reset to empty");
 	}
 }
+}		
+	
+
 
 function handlePiecePickedUp(gameState: GameState, input: PiecePickedUp) {
 	if (gameState.player.piecePickedUp) {

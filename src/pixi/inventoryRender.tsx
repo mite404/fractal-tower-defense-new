@@ -5,7 +5,7 @@ import { addInput } from "../input";
 let inventory: Container;
 let mousePos: PointData;
 let xOffset = 750
-let yStart = 50
+let yStart = 20
 let spacing = 70
 let maxOffSetx = 0
 const pieceSet = new Map<string, Container>();
@@ -31,16 +31,15 @@ function renderAllPieces(
 
   for (const piece of pieces) {
 
-
     if (!pieceSet.has(piece.id)) {
-      if (yStart >= 600) {
-        yStart = 50
+      if (yStart >= 300) {
+        yStart = -250
         xOffset = maxOffSetx
       }
       const pieceContainer = createPieceContainer(pieces.indexOf(piece), xOffset, yStart, spacing)
-      maxOffSetx = Math.max(pieceContainer.width, maxOffSetx)
+      maxOffSetx = Math.max(pieceContainer.width + maxOffSetx, maxOffSetx) + 250
       yStart = pieceContainer.height + yStart + spacing
-      
+
       inventory.addChild(pieceContainer);
       pieceContainer.label = `piece-${piece.id}`;
 
@@ -65,9 +64,6 @@ function renderAllPieces(
 
 
           pieceContainer.addChild(cellGraphics);
-
-
-
           pieceSet.set(piece.id, pieceContainer)
         });
       });
@@ -75,18 +71,25 @@ function renderAllPieces(
       pieceContainer.cursor = "grab";
 
       pieceContainer.on("pointerdown", (e) => {
+        console.log('attempting to drag')
         addInput({
           inputType: "piecePickedUp",
           pieceId: piece.id,
         });
+
+
+        //store original position for failed drag snapback
+        pieceContainer.userData = pieceContainer.userData || {}
+        pieceContainer.userData.originGlobal = pieceContainer.parent.toGlobal(pieceContainer.position);
+
+        //disable events for grid event passthrough
+        pieceContainer.eventMode = "none"
       });
-
-
     }
 
+    //Outside of checking for set to animate drag
     const pieceContainer = pieceSet.get(piece.id)!
     if (gameState.player.piecePickedUp === piece.id) {
-
       pieceContainer.alpha = 0.7;
 
       const localPositionOfMouse = app.stage.toLocal(mousePos);
@@ -94,24 +97,52 @@ function renderAllPieces(
         localPositionOfMouse.x,
         localPositionOfMouse.y
       );
+
+        if (mousePos.x > app.screen.width - 50) {
+    gameState.player.piecePickedUp = null; // stops drag
+  }
+    } // === snapback ===
+    else if (gameState.player.piecePickedUp === null && pieceContainer.userData?.originGlobal) {
+      const originLocal = pieceContainer.parent.toLocal(pieceContainer.userData.originGlobal);
+      if (originLocal.x < 600) originLocal.x = 750
+
+      // move piececontainer back to origin
+      pieceContainer.x += (originLocal.x - pieceContainer.x) * 0.25;
+      pieceContainer.y += (originLocal.y - pieceContainer.y) * 0.25;
+
+      // stop when close
+      if (
+        Math.abs(pieceContainer.x - originLocal.x) < 0.5 &&
+        Math.abs(pieceContainer.y - originLocal.y) < 0.5
+      ) {
+        pieceContainer.position.copyFrom(originLocal);
+        pieceContainer.alpha = 1;
+      }
+
+      pieceContainer.eventMode = 'static'
     }
+
+
+    //make piece container invisible once placed
+    gameState.pieces.forEach(piece => {
+      if (piece && gameState.player.piecePickedUp !== piece.id) {
+      const placedPieceContainer = pieceSet.get(piece.id)!
+      placedPieceContainer.alpha = 0
+      placedPieceContainer.eventMode='static'
+  }})
 
   }
 }
 
-export function createPieceContainer(
-  //texture: Sprite,
+function createPieceContainer(
+  //Add texture: Sprite,
   index: number,
   xOffset = 750,
   yStart = 50,
   spacing = 70
 ): Container {
   const pieceContainer = new Container();
-  //const sprite = new Sprite(texture);
-
-  //pieceContainer.addChild(sprite);
-
-  // simple vertical stacking to the right of the board
+  //Add Sprite here
   pieceContainer.x = xOffset;
   pieceContainer.y = yStart + index * spacing;
 

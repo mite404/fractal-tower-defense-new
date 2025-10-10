@@ -13,6 +13,7 @@ export async function init(canvas: HTMLCanvasElement) {
 	// init renderer
 	initApp(canvas);
 	// setup loop
+	
 	setInterval(() => {
 		// 60 times per second (every 16 ms):
 		// 1. collect inputs

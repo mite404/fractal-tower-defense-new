@@ -78,11 +78,11 @@ export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 			break;
 
 		case "InitiateFinalPath":
-			newGameState = initiatePathSelection(newGameState);
+			//newGameState = initiatePathSelection(newGameState);
 			break;
 
 		case "ConfirmPath":
-			newGameState = selectPath(inputs, newGameState);
+			//newGameState = selectPath(inputs, newGameState);
 			break;
 	}
 

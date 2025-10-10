@@ -6,14 +6,14 @@ import { testFinalPathGameStates } from "../pathfinding/testFinalPathsRendering"
 
 let gameState: GameState = initialGameState;
 //For hardcoded testing
-//gameState = structuredClone(testFinalPathGameStates[4]);
+//gameState = structuredClone(testFinalPathGameStates[3]);
 
 export async function init(canvas: HTMLCanvasElement) {
 	console.log("setting up my game in Phase", gameState.phase);
 	// init renderer
 	initApp(canvas);
 	// setup loop
-	
+
 	setInterval(() => {
 		// 60 times per second (every 16 ms):
 		// 1. collect inputs

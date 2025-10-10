@@ -49,7 +49,7 @@ export function printGrid(grid: Grid, entrance: Cell, exit: Cell) {
 					if (c.type === "path") return "🟩"; // path
 					return "⬜"; // default
 				})
-				.join("")
+				.join("") + Math.random()
 		);
 	}
 }

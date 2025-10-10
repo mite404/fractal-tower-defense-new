@@ -1,5 +1,11 @@
 import { moveEnemyTowardTarget } from "./enemyMovement";
-import type { buttonClick, CellClick, InputEvent, MouseUp, PiecePickedUp } from "./input";
+import type {
+	buttonClick,
+	CellClick,
+	InputEvent,
+	MouseUp,
+	PiecePickedUp,
+} from "./input";
 import {
 	type GameState,
 	createEmptyGrid,
@@ -8,8 +14,12 @@ import {
 } from "./type";
 import { defaultTower } from "./types/pieces";
 import { GameState } from "./type";
-import { canPlacePiece, pickupPiece, placePiece } from "./gameEngine/gameLogic";
-
+import { canPlacePiece, placePiece } from "./gameEngine/gameLogic";
+import {
+	finalPathCellClick,
+	selectCellFinalPath,
+	startFinalPathSelection,
+} from "./pathfinding/selectFinalPath";
 
 // export type Cell = {
 //   x: number | null; //col horizontal
@@ -61,28 +71,34 @@ export const initialGameState: GameState = {
 };
 
 export function loop(inputs: InputEvent[], gameState: GameState): GameState {
-	const newGameState = structuredClone(gameState);
-	if (gameState.phase === "Build") {
-		buildPhase(inputs, newGameState);
-	}
-	if (gameState.phase === "ConfirmPath") {
-		//console.log("Confirm Path Phase");
-		//gameState = testFinalPathGameStates[5];
+	let newGameState = structuredClone(gameState);
+	switch (gameState.phase) {
+		case "Build":
+			buildPhase(inputs, newGameState);
+			break;
+
+		case "InitiateFinalPath":
+			//newGameState = initiatePathSelection(newGameState);
+			break;
+
+		case "ConfirmPath":
+			//newGameState = selectPath(inputs, newGameState);
+			break;
 	}
 
 	//FIXME Everything below here should not be here. Needs to be moved.
 	// set wave state
-	gameState.wave += 1;
+	// gameState.wave += 1;
 
-	// Safety check before accessing enemy
-	if (newGameState.wave % 30 === 0 && newGameState.enemies.length > 0) {
-		const enemy = newGameState.enemies[0];
-		const enemyCellCol = enemy.currentPosition.x;
-		const enemyCellRow = enemy.currentPosition.y;
+	// // Safety check before accessing enemy
+	// if (newGameState.wave % 30 === 0 && newGameState.enemies.length > 0) {
+	// 	const enemy = newGameState.enemies[0];
+	// 	const enemyCellCol = enemy.currentPosition.x;
+	// 	const enemyCellRow = enemy.currentPosition.y;
 
-		moveEnemyTowardTarget(newGameState.enemies[0], mockPath);
-		//console.log('Enemy moved to cell:', enemyCellCol, enemyCellRow)
-	}
+	// 	moveEnemyTowardTarget(newGameState.enemies[0], mockPath);
+	// 	//console.log('Enemy moved to cell:', enemyCellCol, enemyCellRow)
+	// }
 
 	return newGameState;
 }
@@ -95,23 +111,25 @@ function buildPhase(inputs: InputEvent[], gameState: GameState) {
 			handlePiecePickedUp(gameState, input);
 		} else if (input.inputType == "mouseup") {
 			handleMouseUp(input, gameState);
-		} else if (input.inputType = 'buttonclick') {
-			handleButtonClick(input, gameState)
+		} else if (input.inputType == "buttonclick") {
+			handleButtonClick(input, gameState);
 		} else {
 			throw new Error(
 				"WHAT TYPE IS THIS??? NOT HANDLED!!! BLAME YOUR TEAMMATES!!"
-			)
+			);
 		}
-	})
-};
+	});
+}
 
 function handleButtonClick(event: buttonClick, gameState: GameState) {
-	console.log('switching phases')
-	gameState.phase === 'Build' ? gameState.phase = "Defense" : gameState.phase = 'Build'
+	console.log("switching phases");
+	gameState.phase === "Build"
+		? (gameState.phase = "Defense")
+		: (gameState.phase = "Build");
 }
 
 function handleMouseUp(event: MouseUp, gameState: GameState) {
-	console.log('attempting to drop')
+	console.log("attempting to drop");
 	const pickedUpId = gameState.player.piecePickedUp;
 	if (!pickedUpId) {
 		return;
@@ -124,15 +142,20 @@ function handleMouseUp(event: MouseUp, gameState: GameState) {
 				"picked up non-existent piece??? YELL AT TEAMMATES"
 			);
 		}
-		if (canPlacePiece(gameState, piece, event.gridCoordinates.x, event.gridCoordinates.y)) {
+		if (
+			canPlacePiece(
+				gameState,
+				piece,
+				event.gridCoordinates.x,
+				event.gridCoordinates.y
+			)
+		)
 			placePiece(
 				gameState,
 				piece,
 				event.gridCoordinates.x,
 				event.gridCoordinates.y
 			);
-		}
-		console.log('piece picked up set to tnull')
 		gameState.player.piecePickedUp = null;
 	}
 }
@@ -187,4 +210,35 @@ function handlePiecePickedUp(gameState: GameState, input: PiecePickedUp) {
 		return;
 	}
 	gameState.player.piecePickedUp = input.pieceId;
+}
+
+function initiatePathSelection(state: GameState): GameState {
+	const next = startFinalPathSelection(state);
+	if (!next) throw new Error("startFinalPathSelection returned null");
+	next.phase = "ConfirmPath";
+	return next;
+}
+
+function selectPath(inputs: InputEvent[], state: GameState): GameState {
+	if (!state.selectingFinalPath)
+		throw new Error("selectPath phase without selectingFinalPath=true");
+
+	let newState = structuredClone(state);
+
+	for (const input of inputs) {
+		if (input.inputType === "cellClick") {
+			const clickedCell = newState.grid[input.cellY][input.cellX];
+			const result = finalPathCellClick(newState, clickedCell);
+			if (result) newState = result;
+		}
+		// if (input.inputType === "buttonclick") {
+		//   newState = submitFinalPath(newState) ?? newState;
+		// }
+	}
+
+	if (newState.validFinalPath) {
+		console.log("Final path confirmed — show submit button");
+	}
+
+	return newState;
 }

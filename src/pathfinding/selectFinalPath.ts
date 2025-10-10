@@ -1,8 +1,7 @@
 // finalPathLogic.ts
 import type { GameState, Grid, Cell } from "../type.ts";
-import { getNeighbors } from "./helperPath.ts"; 
-import { hasPathToExit } from "./validPath.ts"; 
-
+import { getNeighbors } from "./helperPath.ts";
+import { hasPathToExit } from "./validPath.ts";
 
 // Important functions to outside systems:
 // startFinalPathSelection(state: GameState): GameState | null
@@ -30,12 +29,9 @@ import { hasPathToExit } from "./validPath.ts";
 //      ↓
 //  Final path locked and grid cleaned
 
-
-
-
 // cloning helpers
 function cloneCell(c: Cell): Cell {
-  return structuredClone(c);
+	return structuredClone(c);
 }
 function cloneGrid(grid: Grid): Grid {
 	return grid.map((row) => row.map(cloneCell));
@@ -77,7 +73,7 @@ function updateHighlights(state: GameState): GameState {
 	return newState;
 }
 
- // Initializes path-selection mode and highlights the spawn’s valid neighbors.
+// Initializes path-selection mode and highlights the spawn’s valid neighbors.
 export function startFinalPathSelection(state: GameState): GameState | null {
 	if (state.selectingFinalPath) return null;
 
@@ -101,7 +97,6 @@ export function startFinalPathSelection(state: GameState): GameState | null {
 	return updateHighlights(newState);
 }
 
-
 export function selectCellFinalPath(
 	state: GameState,
 	cell: Cell
@@ -110,7 +105,11 @@ export function selectCellFinalPath(
 	if (cell.selectionState !== "highlighted") return null;
 
 	const grid = cloneGrid(state.grid);
-	const newState: GameState = { ...state, grid, finalPath: [...state.finalPath] };
+	const newState: GameState = {
+		...state,
+		grid,
+		finalPath: [...state.finalPath],
+	};
 
 	const target = grid[cell.y!][cell.x!];
 	target.selectionState = "selected";
@@ -152,13 +151,10 @@ export function selectCellFinalPath(
 	const after = updateHighlights(newState);
 	const last = after.finalPath.at(-1);
 	after.validFinalPath =
-		!!last &&
-		last.x === after.exit.x &&
-		last.y === after.exit.y;
+		!!last && last.x === after.exit.x && last.y === after.exit.y;
 
 	return after;
 }
-
 
 export function deselectCellFinalPath(
 	state: GameState,
@@ -168,7 +164,12 @@ export function deselectCellFinalPath(
 	if (cell.selectionState !== "selected") return null;
 
 	const grid = cloneGrid(state.grid);
-	const newState: GameState = { ...state, grid, finalPath: [...state.finalPath], validFinalPath: false };
+	const newState: GameState = {
+		...state,
+		grid,
+		finalPath: [...state.finalPath],
+		validFinalPath: false,
+	};
 
 	const key = coordKey(cell);
 	const idx = newState.finalPath.findIndex((n) => coordKey(n) === key);
@@ -182,7 +183,11 @@ export function deselectCellFinalPath(
 	const selectedSet = new Set(newState.finalPath.map(coordKey));
 	const neighbors = getNeighbors(grid, cell)
 		.filter((n) => n.type === "path" || n.type === "exit")
-		.filter((n) => !selectedSet.has(coordKey(n)) && hasPathToExit(grid, n, newState.exit));
+		.filter(
+			(n) =>
+				!selectedSet.has(coordKey(n)) &&
+				hasPathToExit(grid, n, newState.exit)
+		);
 
 	// if there was no branching (only one valid neighbor), do nothing
 	if (neighbors.length === 1 && idx === 0) {
@@ -201,7 +206,6 @@ export function deselectCellFinalPath(
 	return updateHighlights(newState);
 }
 
-
 export function finalPathCellClick(
 	state: GameState,
 	cell: Cell
@@ -218,7 +222,6 @@ export function finalPathCellClick(
 	console.log("Clicked non-actionable cell", cell);
 	return null;
 }
-
 
 export function submitFinalPath(state: GameState): GameState | null {
 	if (!state.validFinalPath || !state.selectingFinalPath) return null;
@@ -242,6 +245,7 @@ export function submitFinalPath(state: GameState): GameState | null {
 		...state,
 		grid,
 		selectingFinalPath: false,
+		phase: "Defense",
 		validFinalPath: true,
 	};
 }

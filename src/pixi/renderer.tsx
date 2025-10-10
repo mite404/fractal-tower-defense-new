@@ -2,11 +2,10 @@ import {
 	Application,
 	Container,
 	Sprite,
-	Graphics,
-	type PointData,
+	Graphics
 } from "pixi.js";
 import { type GameState, createEmptyGrid } from "../type";
-import { enemyDummyTexture, bgTileTexture } from "./textures";
+import { enemyDummyTexture, bgTileTexture, tower01Texture } from "./textures";
 import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
@@ -17,6 +16,8 @@ let displayBgTileSprite: Sprite;
 let displayEnemy: Container;
 export let board: Container;
 const enemySprites = new Map<string, Sprite>();
+const towerSprites = new Map<string, Sprite>()
+let displayTower: Container
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 	// TODO: pull out any init stuff from the render function and put it in here.
@@ -37,6 +38,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 	// Create and add a container to the stage
 	board = new Container();
 	displayEnemy = new Container();
+	displayTower = new Container();
 
 	// Create the background tileset
 	displayBgTileSprite = new Sprite(bgTileTexture);
@@ -45,28 +47,9 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 	displayBgTileSprite.x = 0;
 	displayBgTileSprite.y = 0;
 
-	// A WAY TO DRAW A GRID ONCE INSTEAD OF EVERY FRAME
-	// TODO: figure out how to implement with out breaking the displayGrid as an array
-	// and the `cellClick` functionality
-	//
-	// const drawGrid = new Graphics()
-
-	// // vertical grid lines
-	// for (let i = 0; i <= 10; i++) {
-	//   drawGrid.moveTo(i * 60, 0).lineTo(i * 60, 600);
-	// }
-
-	// // horizontal grid lines
-	// for (let i = 0; i <= 10; i++) {
-	//   drawGrid.moveTo(0, i * 60).lineTo(600, i * 60);
-	// }
-
-	// drawGrid.stroke({ width: 1, color: 0x00ff00 })
-
-	app.stage.addChild(displayBgTileSprite);
+	app.stage.addChild(displayBgTileSprite, board, displayEnemy, displayTower);
 	// app.stage.addChild(drawGrid);
-	app.stage.addChild(board);
-	app.stage.addChild(displayEnemy);
+
 	app.stage.eventMode = "static";
 	// Make sure the whole canvas area is interactive, not just the circle.
 	app.stage.hitArea = app.screen;
@@ -85,8 +68,8 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 				// cellY: rowIndex  // row = y
 				addInput({
 					inputType: "cellClick",
-					cellX: rowIndex,
-					cellY: colIndex,
+					cellX: colIndex,
+					cellY: rowIndex,
 				});
 				console.log("adding to input queue");
 			});
@@ -111,8 +94,8 @@ export function render(gameState: GameState) {
 	renderInventory(app, gameState);
 	// TODO render piece sidebar
 
-	// render enemies
-
+	renderTowers(gameState)
+	renderEnemies(gameState)
 	// render projectiles
 
 	return app;
@@ -158,10 +141,41 @@ export function renderEnemies(gameState: GameState) {
 	enemySprites.forEach((sprite, id) => {
 		// if enemy sprite no longer in gameState
 		if (!currentEnemyIds.has(id)) {
-			sprite.destroy(); // Clean up GPU resources
+			sprite.destroy(); // clean up GPU resources
 			enemySprites.delete(id); // remove from Map
 		}
 	});
+}
+
+export function renderTowers(gameState: GameState) {
+	gameState.towers.forEach((tower) => {
+		// check if sprite already exists
+		if (!towerSprites.has(tower.id)) {
+			// create sprite once
+			const sprite = new Sprite(tower01Texture)
+
+			towerSprites.set(tower.id, sprite)
+			displayTower.addChild(sprite)
+		}
+		// update existing sprite position
+		const sprite = towerSprites.get(tower.id)!
+		sprite.x = tower.position.x * 60
+		sprite.y = tower.position.y * 60
+
+		console.log('Positioning tower at:', sprite.x, sprite.y)
+	})
+
+	// compares sprite cache to what's in current gameState
+	const currentTowerIds = new Set(gameState.towers.map(tower => tower.id))
+
+	// despawn destroyed towers
+	towerSprites.forEach((sprite, id) => {
+		// if tower sprite no longer in gameState
+		if (!currentTowerIds.has(id)) {
+			sprite.destroy()  // clean up GPU resources
+			towerSprites.delete(id)  // remove from Map
+		}
+	})
 }
 
 // write export updateSelectionState() that checks all path cells within gameState grid if changed render different color

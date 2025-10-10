@@ -7,7 +7,6 @@ import {
 	type Cell,
 } from "./type";
 import { defaultTower } from "./types/pieces";
-import { GameState } from "./type";
 import { placePiece } from "./gameEngine/gameLogic";
 
 // export type Cell = {
@@ -51,7 +50,18 @@ export const initialGameState: GameState = {
 			gold: 20,
 		},
 	],
-	towers: [],
+	towers: [
+		{
+			id: 'tower-test-01',
+			type: 'basic',
+			pieceId: 'test',
+			position: { x: 3, y: 3 },
+			damage: 50,
+			range: 50,
+			fireRate: 50,
+			cooldown: 50,
+		}
+	],
 	pieces: [],
 	longestPath: [],
 	validPath: false,
@@ -62,6 +72,9 @@ export const initialGameState: GameState = {
 export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 	const newGameState = structuredClone(gameState);
 	handleInputs(inputs, newGameState);
+
+	updateTowers(newGameState)
+
 	// set wave state
 	gameState.wave += 1;
 
@@ -74,6 +87,8 @@ export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 		moveEnemyTowardTarget(newGameState.enemies[0], mockPath);
 		//console.log('Enemy moved to cell:', enemyCellCol, enemyCellRow)
 	}
+
+
 
 	return newGameState;
 }
@@ -107,7 +122,7 @@ function handleMouseUp(event: MouseUp, gameState: GameState) {
 				"picked up non-existent piece??? YELL AT TEAMMATES"
 			);
 		}
-    // TODO canPlacePiece
+		// TODO canPlacePiece
 		placePiece(
 			gameState,
 			piece,
@@ -115,6 +130,32 @@ function handleMouseUp(event: MouseUp, gameState: GameState) {
 			event.gridCoordinates.y
 		);
 		gameState.player.piecePickedUp = null;
+
+		const topLeftX = event.gridCoordinates.x
+		const topLeftY = event.gridCoordinates.y
+		const { tower } = piece;
+
+		// find local tower cell in the transformed shape
+		let towerLocal: { row: number, col: number } | null = null
+
+		for (let r = 0; r < piece.shape.length; r++) {
+			for (let c = 0; c < piece.shape[r].length; c++) {
+				if (piece.shape[r][c].type === "tower") {
+					towerLocal = { row: r, col: c };
+				}
+			}
+
+			if (towerLocal) {
+				tower.position = { x: topLeftX + towerLocal.col, y: topLeftY + towerLocal.row }
+				gameState.towers.push(structuredClone(tower))
+			};
+		}
+
+		if (towerLocal) {
+			const towerGridX = topLeftX + towerLocal.col;
+			const towerGridY = topLeftY + towerLocal.row;
+			console.log("tower position on grid:", { x: towerGridX, y: towerGridY });
+		}
 	}
 }
 
@@ -161,4 +202,14 @@ function handlePiecePickedUp(gameState: GameState, input: PiecePickedUp) {
 		return;
 	}
 	gameState.player.piecePickedUp = input.pieceId;
+}
+
+function updateTowers(gameState: GameState) {
+	gameState.towers = gameState.towers.filter(tower => {
+		if (tower.currentHealth <= 0) {
+			gameState.grid[tower.position.y][tower.position.x].type = "empty"
+			return false  // remove tower from game grid if destroyed
+		}
+		return true  // keep the tower
+	})
 }

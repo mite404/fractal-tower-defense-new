@@ -9,6 +9,7 @@ import { enemyDummyTexture, bgTileTexture, tower01Texture } from "./textures";
 import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
+import { initUI, updateUI } from "./renderUI.ts";
 
 let app: Application;
 let displayGrid: Graphics[][];
@@ -34,6 +35,8 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 	});
 
 	await loadTextures();
+
+  await initUI(app)
 
 	// Create and add a container to the stage
 	board = new Container();
@@ -74,10 +77,10 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 				console.log("adding to input queue");
 			});
 			square.on("pointerup", (e) => {
-				console.log("pointer up!", rowIndex, colIndex);
+				console.log("pointer up!", colIndex, rowIndex);
 				addInput({
 					inputType: "mouseup",
-					gridCoordinates: { x: rowIndex, y: colIndex },
+					gridCoordinates: { x: colIndex, y: rowIndex },
 				});
 			});
 			board.addChild(square);
@@ -91,7 +94,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 export function render(gameState: GameState) {
 	// render the board
 	renderBoard(gameState);
-	renderInventory(app, gameState);
+	if (gameState.phase === "Build") renderInventory(app, gameState);
 	// TODO render piece sidebar
 
 	renderTowers(gameState)

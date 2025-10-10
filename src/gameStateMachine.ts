@@ -273,37 +273,6 @@ function selectPath(inputs: InputEvent[], state: GameState): GameState {
 	return newState;
 }
 
-function initiatePathSelection(state: GameState): GameState {
-	const next = startFinalPathSelection(state);
-	if (!next) throw new Error("startFinalPathSelection returned null");
-	next.phase = "ConfirmPath";
-	return next;
-}
-
-function selectPath(inputs: InputEvent[], state: GameState): GameState {
-	if (!state.selectingFinalPath)
-		throw new Error("selectPath phase without selectingFinalPath=true");
-
-	let newState = structuredClone(state);
-
-	for (const input of inputs) {
-		if (input.inputType === "cellClick") {
-			const clickedCell = newState.grid[input.cellY][input.cellX];
-			const result = finalPathCellClick(newState, clickedCell);
-			if (result) newState = result;
-		}
-		// if (input.inputType === "buttonclick") {
-		//   newState = submitFinalPath(newState) ?? newState;
-		// }
-	}
-
-	if (newState.validFinalPath) {
-		console.log("Final path confirmed — show submit button");
-	}
-
-	return newState;
-}
-
 function updateTowers(gameState: GameState) {
 	gameState.towers = gameState.towers.filter(tower => {
 		if (tower.currentHealth <= 0) {

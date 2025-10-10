@@ -111,8 +111,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 export function render(gameState: GameState) {
 	// render the board
 	renderBoard(gameState);
-	renderInventory(app, gameState);
-  updateUI(gameState)
+	if (gameState.phase === "Build") renderInventory(app, gameState);
 	// TODO render piece sidebar
 
 	// render enemies

@@ -9,8 +9,8 @@ export type GameState = {
 	wave: number;
 	enemies: Enemy[];
 	towers: Tower[];
-	pieces: PlacedPiece[];
-	finalPath: Cell[] | null; // this is the path that the enemies are going to take
+  pieces: Piece[];// pieces placed on board
+	finalPath: Cell[]; // this is the path that the enemies are going to take
 	selectingFinalPath: boolean; // flag for when player is choosing final path
 	validFinalPath: boolean;
 	winlose: "Playing" | "Win" | "Lose";
@@ -58,11 +58,6 @@ export type Piece = {
 	tower: Tower;
 };
 
-export type PlacedPiece = {
-	id: string;
-	pieceId: string; // which initial piece was placed
-	position: { x: number; y: number }; //top left corner of piece
-};
 
 export type Enemy = {
 	id: string;

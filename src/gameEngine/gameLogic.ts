@@ -41,7 +41,7 @@ export function placePiece(gameState: GameState, piece: Piece, topLeftX: number,
 
 
 export function pickupPiece(gameState:GameState, topLeftX: number, topLeftY: number):void{
-  const picked = gameState.pieces.find(piece=>gameState.grid[topLeftX][topLeftY].occupiedBy===piece.id)
+  const picked = gameState.pieces.find(piece=>gameState.grid[topLeftX][topLeftY].occupiedBy===piece.id)!
 	gameState.pieces = gameState.pieces.filter(piece=>gameState.grid[topLeftX][topLeftY].occupiedBy!==piece.id)
 	gameState.player.hand.push(picked)
 	gameState.player.piecePickedUp = picked.id

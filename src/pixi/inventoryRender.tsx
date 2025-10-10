@@ -121,17 +121,14 @@ function renderAllPieces(
 
       pieceContainer.eventMode = 'static'
     }
-
-
-    //make piece container invisible once placed
+  }
+     //make piece container invisible once placed
     gameState.pieces.forEach(piece => {
       if (piece && gameState.player.piecePickedUp !== piece.id) {
       const placedPieceContainer = pieceSet.get(piece.id)!
       placedPieceContainer.alpha = 0
       placedPieceContainer.eventMode='static'
   }})
-
-  }
 }
 
 function createPieceContainer(

@@ -1,6 +1,5 @@
-import { moveEnemyTowardTarget } from "./enemyMovement";
 import type {
-	buttonClick,
+	ButtonClick,
 	CellClick,
 	InputEvent,
 	MouseUp,
@@ -13,8 +12,7 @@ import {
 	type Cell,
 } from "./type";
 import { defaultTower } from "./types/pieces";
-import { GameState } from "./type";
-import { canPlacePiece, placePiece } from "./gameEngine/gameLogic";
+import { canPlacePiece, pickupPiece, placePiece } from "./gameEngine/gameLogic";
 import {
 	finalPathCellClick,
 	selectCellFinalPath,
@@ -131,7 +129,7 @@ function buildPhase(inputs: InputEvent[], gameState: GameState) {
 	}
 }
 
-function handleButtonClick(event: buttonClick, gameState: GameState) {
+function handleButtonClick(event: ButtonClick, gameState: GameState) {
 	console.log("switching phases");
 	gameState.phase === "Build"
 		? (gameState.phase = "Defense")

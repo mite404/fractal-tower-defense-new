@@ -34,6 +34,41 @@ export const squarePiece:Piece = {
     tower: defaultTower(squarePieceId)
 }
 
+const squarePieceIdB = crypto.randomUUID()
+
+export const squarePieceB:Piece = {
+    id: squarePieceIdB,
+    shape: createShape([['path','path'],['path','tower']]),
+    isPlaced: false,
+    rotation: 0,
+    flipped: false,
+    tower: defaultTower(squarePieceId)
+}
+
+
+const squarePieceIdA = crypto.randomUUID()
+
+export const squarePieceA:Piece = {
+    id: squarePieceIdA,
+    shape: createShape([['path','tower'],['path','path']]),
+    isPlaced: false,
+    rotation: 0,
+    flipped: false,
+    tower: defaultTower(squarePieceId)
+}
+
+const squarePieceIdC = crypto.randomUUID()
+
+export const squarePieceC:Piece = {
+    id: squarePieceIdC,
+    shape: createShape([['path','path'],['tower','path']]),
+    isPlaced: false,
+    rotation: 0,
+    flipped: false,
+    tower: defaultTower(squarePieceId)
+}
+
+
 const recPieceId = crypto.randomUUID()
 
 export const rectPiece:Piece = {
@@ -78,7 +113,8 @@ export const jPiece:Piece = {
 
 export function startingHand():Piece[] {
     return [
-        squarePiece, {...squarePiece,id:crypto.randomUUID()}, rectPiece, sPieceA, sPieceB, jPiece 
+        squarePiece, {...squarePiece,id:crypto.randomUUID()}, rectPiece,
+        squarePieceA, {...squarePieceA,id:crypto.randomUUID()}, squarePieceB, {...squarePieceB,id:crypto.randomUUID()}, squarePieceC, {...squarePieceC,id:crypto.randomUUID()} 
     ]
 }
 

@@ -91,10 +91,10 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 				console.log("adding to input queue");
 			});
 			square.on("pointerup", (e) => {
-				console.log("pointer up!", rowIndex, colIndex);
+				console.log("pointer up!", colIndex, rowIndex);
 				addInput({
 					inputType: "mouseup",
-					gridCoordinates: { x: rowIndex, y: colIndex },
+					gridCoordinates: { x: colIndex, y: rowIndex },
 				});
 			});
 			board.addChild(square);

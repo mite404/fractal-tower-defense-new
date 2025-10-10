@@ -11,7 +11,6 @@ export function canPlacePiece(gameState: GameState, piece: Piece, topLeftX: numb
 
       const gx = topLeftX + c;
       const gy = topLeftY + r;
-      console.log(gx,gy)
 
       if (gy < 0 || gx < 0 || gy >= currentGrid.length || gx >= currentGrid[0].length) return false;
       if  (gameState.grid[gy][gx].type!=='empty') return false
@@ -34,17 +33,14 @@ export function placePiece(gameState: GameState, piece: Piece, topLeftX: number,
   if (i !== -1) gameState.player.hand.splice(i, 1);
   piece.isPlaced = true
 
-  const placed = gameState.pieces.find(p => p.pieceId === piece.id);
-if (placed) {
-  placed.position = { x: topLeftX, y: topLeftY };
-} else {
   gameState.pieces.push({
     id: crypto.randomUUID(),
     pieceId: piece.id,
     position: { x: topLeftX, y: topLeftY },
   });
+  gameState.player.piecePickedUp = null
 }
-}
+
 
 export function pickupPiece(gameState:GameState,piece:Piece, topLeftX: number, topLeftY: number):void{
   console.log('pickup at ', topLeftX, topLeftY)

@@ -112,10 +112,11 @@ export function render(gameState: GameState) {
 	// render the board
 	renderBoard(gameState);
 	if (gameState.phase === "Build") renderInventory(app, gameState);
+  updateUI(gameState)
 	// TODO render piece sidebar
 
 	// render enemies
-
+  renderEnemies(gameState)
 	// render projectiles
 
 	return app;
@@ -141,7 +142,7 @@ export function renderEnemies(gameState: GameState) {
 	//console.log('enemySprites Map size:', enemySprites.size)
 
 	gameState.enemies.forEach((enemy) => {
-		//console.log('Processing enemy:', enemy.id)
+		console.log('Processing enemy:', enemy.id)
 
 		if (!enemySprites.has(enemy.id)) {
 			//console.log('Creating new sprite for:', enemy.id)

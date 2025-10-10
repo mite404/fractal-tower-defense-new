@@ -164,6 +164,10 @@ function updateGridWithClicks(
 	gameState: GameState,
 	cellClickEvent: CellClick
 ): void {
+	if (gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].occupiedBy) {
+		pickupPiece(gameState,cellClickEvent.cellX,cellClickEvent.cellY)
+
+	} else {
 	if (
 		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
 		"path"
@@ -193,6 +197,9 @@ function updateGridWithClicks(
 		console.log("reset to empty");
 	}
 }
+}		
+	
+
 
 function handlePiecePickedUp(gameState: GameState, input: PiecePickedUp) {
 	if (gameState.player.piecePickedUp) {

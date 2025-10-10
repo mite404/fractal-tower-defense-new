@@ -20,6 +20,7 @@ import {
 	selectCellFinalPath,
 	startFinalPathSelection,
 } from "./pathfinding/selectFinalPath";
+import { findValidPath } from "./pathfinding/validPath";
 
 // export type Cell = {
 //   x: number | null; //col horizontal
@@ -77,13 +78,13 @@ export function loop(inputs: InputEvent[], gameState: GameState): GameState {
 			buildPhase(inputs, newGameState);
 			break;
 
-		case "InitiateFinalPath":
-			//newGameState = initiatePathSelection(newGameState);
-			break;
+		// case "InitiateFinalPath":
+		// 	newGameState = initiatePathSelection(newGameState);
+		// 	break;
 
-		case "ConfirmPath":
-			//newGameState = selectPath(inputs, newGameState);
-			break;
+		// case "ConfirmPath":
+		// 	newGameState = selectPath(inputs, newGameState);
+		// 	break;
 	}
 
 	//FIXME Everything below here should not be here. Needs to be moved.
@@ -119,6 +120,12 @@ function buildPhase(inputs: InputEvent[], gameState: GameState) {
 			);
 		}
 	});
+
+	gameState.finalPath = findValidPath(
+		gameState.grid,
+		gameState.grid[0][0],
+		gameState.grid[9][9]
+	);
 }
 
 function handleButtonClick(event: buttonClick, gameState: GameState) {

@@ -1,5 +1,5 @@
 import type { Cell, Grid } from "../type.ts";
-import { createTestGrid, getNeighbors,  } from "./helperPath.ts";
+import { createTestGrid, getNeighbors } from "./helperPath.ts";
 
 /**
  * Shared recursive DFS helper used by both hasValidPath and hasPathToExit.
@@ -10,8 +10,8 @@ function dfsReachable(
 	target: Cell,
 	visited: Set<string>,
 	path: Cell[] = []
-): boolean {
-	if (current.x == null || current.y == null) return false;
+): Cell[] | null {
+	if (current.x == null || current.y == null) return null;
 
 	// --- DEBUGGING ---
 	// console.log(
@@ -35,7 +35,7 @@ function dfsReachable(
 		// console.log("Reached target! Path found:");
 		// printGrid(validPathGrid, path[0], target);
 
-		return true;
+		return path;
 	}
 
 	for (const neighbor of getNeighbors(grid, current)) {
@@ -43,19 +43,24 @@ function dfsReachable(
 		const key = `${neighbor.x},${neighbor.y}`;
 		if (visited.has(key)) continue;
 
-		if (dfsReachable(grid, neighbor, target, visited, path)) return true;
+		const result = dfsReachable(grid, neighbor, target, visited, path);
+		if (result) return result;
 	}
 
 	path.pop();
-	return false;
+	return null;
 }
 
 /**
  * Used to check if there's a complete valid path
  * from entrance to exit — used for entering final path selection.
  */
-export function hasValidPath(grid: Grid, entrance: Cell, exit: Cell): boolean {
-	if (!entrance || !exit) return false;
+export function findValidPath(
+	grid: Grid,
+	entrance: Cell,
+	exit: Cell
+): Cell[] | null {
+	if (!entrance || !exit) return null;
 
 	// --- DEBUGGING ---
 	// console.log("\nChecking hasValidPath():");
@@ -77,5 +82,5 @@ export function hasPathToExit(grid: Grid, start: Cell, exit: Cell): boolean {
 	// printGrid(grid, start, exit);
 
 	const visited = new Set<string>();
-	return dfsReachable(grid, start, exit, visited);
+	return dfsReachable(grid, start, exit, visited) != null;
 }

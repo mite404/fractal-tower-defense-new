@@ -35,7 +35,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
 	await loadTextures();
 
-  await initUI(app)
+	await initUI(app);
 
 	// Create and add a container to the stage
 	board = new Container();
@@ -109,6 +109,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 }
 
 export function render(gameState: GameState) {
+	updateUI(gameState);
 	// render the board
 	renderBoard(gameState);
 	if (gameState.phase === "Build") renderInventory(app, gameState);
@@ -126,7 +127,9 @@ export function renderBoard(gameState: GameState): void {
 	gameState.grid.forEach((row, rowIdx) => {
 		row.forEach((cell, colIdx) => {
 			const square = displayGrid[rowIdx][colIdx];
-			if (cell.type === "path") {
+			if (gameState.finalPath?.includes(cell)) {
+				square.tint = 0xffff00;
+			} else if (cell.type === "path") {
 				square.tint = 0xff0000;
 			} else if (cell.type === "tower") {
 				square.tint = 0x00fff;

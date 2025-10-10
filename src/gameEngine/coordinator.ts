@@ -5,8 +5,6 @@ import { initialGameState, type GameState } from "../type";
 import { testFinalPathGameStates } from "../pathfinding/testFinalPathsRendering";
 
 let gameState: GameState = initialGameState;
-//For hardcoded testing
-//gameState = structuredClone(testFinalPathGameStates[3]);
 
 export async function init(canvas: HTMLCanvasElement) {
 	console.log("setting up my game in Phase", gameState.phase);

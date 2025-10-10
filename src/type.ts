@@ -9,7 +9,7 @@ export type GameState = {
 	wave: number;
 	enemies: Enemy[];
 	towers: Tower[];
-	pieces: Piece[];// pieces placed on board
+  pieces: Piece[];// pieces placed on board
 	finalPath: Cell[]; // this is the path that the enemies are going to take
 	selectingFinalPath: boolean; // flag for when player is choosing final path
 	validFinalPath: boolean;

@@ -14,7 +14,7 @@ export function createEmptyGameState(
 ): GameState {
 	return {
 		player: { ...initialPlayer },
-		phase: "ConfirmPath",
+		phase: "InitiateFinalPath",
 		grid,
 		spawn,
 		exit,
@@ -74,6 +74,11 @@ export const testFinalPathGameStates: GameState[] = [
 
 console.log("Creating final path test states");
 testFinalPathGameStates.forEach((state, i) => {
-	console.log(`====== Grid ${i + 1} ======`);
-	//printGrid(state.grid, state.spawn, state.exit);
+	//console.log(`====== Grid ${i + 1} ======`);
 });
+printGrid(
+	testFinalPathGameStates[3].grid,
+	testFinalPathGameStates[3].spawn,
+	testFinalPathGameStates[3].exit
+);
+console.log(testFinalPathGameStates[3].grid)

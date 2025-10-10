@@ -40,8 +40,8 @@ function renderAllPieces(
       const pieceContainer = createPieceContainer(pieces.indexOf(piece), xOffset, yStart, spacing)
       maxOffSetx = Math.max(pieceContainer.width, maxOffSetx)
       yStart = pieceContainer.height + yStart + spacing
-      pieceContainer.eventMode = "dynamic";
-      pieceContainer.cursor = "pointer";
+      
+      inventory.addChild(pieceContainer);
       pieceContainer.label = `piece-${piece.id}`;
 
       piece.shape.forEach((row, rowidx) => {
@@ -71,7 +71,7 @@ function renderAllPieces(
           pieceSet.set(piece.id, pieceContainer)
         });
       });
-      pieceContainer.eventMode = "dynamic";
+      pieceContainer.eventMode = "static";
       pieceContainer.cursor = "grab";
 
       pieceContainer.on("pointerdown", (e) => {
@@ -81,7 +81,7 @@ function renderAllPieces(
         });
       });
 
-      inventory.addChild(pieceContainer);
+
     }
 
     const pieceContainer = pieceSet.get(piece.id)!
@@ -114,8 +114,6 @@ export function createPieceContainer(
   // simple vertical stacking to the right of the board
   pieceContainer.x = xOffset;
   pieceContainer.y = yStart + index * spacing;
-
-  pieceContainer.interactive = true;
 
   return pieceContainer;
 }

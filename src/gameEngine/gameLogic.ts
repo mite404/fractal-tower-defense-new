@@ -26,12 +26,14 @@ export function placePiece(gameState: GameState, piece: Piece, topLeftX: number,
       const gx = topLeftX + c
       const gy = topLeftY + r
       gameState.grid[gy][gx].type = piece.shape[r][c].type
+      gameState.grid[gy][gx].occupiedBy = piece.id
     }
   }
 
   const i = gameState.player.hand.findIndex(p => p.id === piece.id);
   if (i !== -1) gameState.player.hand.splice(i, 1);
   piece.isPlaced = true
+  gameState.towers.push(piece.tower)
 
   gameState.pieces.push({
     id: crypto.randomUUID(),
@@ -46,4 +48,6 @@ export function pickupPiece(gameState:GameState,piece:Piece, topLeftX: number, t
   console.log('pickup at ', topLeftX, topLeftY)
   if (!piece.isPlaced) return
   piece.isPlaced = false
+  gameState.player.piecePickedUp = piece.id
+  
 }

@@ -1,5 +1,5 @@
 import { moveEnemyTowardTarget } from "./enemyMovement";
-import type { CellClick, InputEvent, MouseUp, PiecePickedUp } from "./input";
+import type { buttonClick, CellClick, InputEvent, MouseUp, PiecePickedUp } from "./input";
 import {
 	type GameState,
 	createEmptyGrid,
@@ -8,7 +8,7 @@ import {
 } from "./type";
 import { defaultTower } from "./types/pieces";
 import { GameState } from "./type";
-import { placePiece } from "./gameEngine/gameLogic";
+import { canPlacePiece, placePiece } from "./gameEngine/gameLogic";
 
 // export type Cell = {
 //   x: number | null; //col horizontal
@@ -86,12 +86,18 @@ function handleInputs(inputs: InputEvent[], gameState: GameState) {
 			handlePiecePickedUp(gameState, input);
 		} else if (input.inputType == "mouseup") {
 			handleMouseUp(input, gameState);
-		} else {
+		} else if  (input.inputType = 'buttonclick'){
+      handleButtonClick(input, gameState)
+    } else {
 			throw new Error(
 				"WHAT TYPE IS THIS??? NOT HANDLED!!! BLAME YOUR TEAMMATES!!"
-			);
-		}
-	});
+			)}
+		})
+	};
+
+function handleButtonClick(event: buttonClick, gameState: GameState){
+  console.log('switching phases')
+  gameState.phase === 'Build' ? gameState.phase = "Defense" : gameState.phase = 'Build'
 }
 
 function handleMouseUp(event: MouseUp, gameState: GameState) {
@@ -108,7 +114,7 @@ function handleMouseUp(event: MouseUp, gameState: GameState) {
 				"picked up non-existent piece??? YELL AT TEAMMATES"
 			);
 		}
-    // TODO canPlacePiece
+    if(canPlacePiece(gameState,piece,event.gridCoordinates.x,event.gridCoordinates.y)) {}
 		placePiece(
 			gameState,
 			piece,

@@ -1,4 +1,4 @@
-export type InputEvent = PiecePickedUp | CellClick | MouseUp;
+export type InputEvent = PiecePickedUp | CellClick | MouseUp | ButtonClick;
 
 export type PiecePickedUp = { inputType: "piecePickedUp"; pieceId: string };
 
@@ -11,6 +11,9 @@ export type MouseUp = {
 	inputType: "mouseup";
 	gridCoordinates: { x: number; y: number } | null;
 };
+export type ButtonClick = {
+	inputType: 'buttonclick'
+}
 
 let inputQueue: InputEvent[] = [];
 export function addInput(input: InputEvent) {
@@ -22,3 +25,5 @@ export function consumeInputs(): InputEvent[] {
 	inputQueue = [];
 	return result;
 }
+
+

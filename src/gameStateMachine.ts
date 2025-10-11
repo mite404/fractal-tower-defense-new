@@ -247,3 +247,13 @@ function selectPath(inputs: InputEvent[], state: GameState): GameState {
 
 	return newState;
 }
+
+function handleMouseMove(input: InputEvent, gameState: GameState) {
+  if (!gameState.player.piecePickedUp) return;
+
+  const pieceId = gameState.player.piecePickedUp;
+  const piece = gameState.pieces.find(p => p.id === pieceId);
+  if (!piece) return;
+
+  gameState.player.dragPos = input.position;
+}

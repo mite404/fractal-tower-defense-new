@@ -46,6 +46,7 @@ export function pickupPiece(gameState:GameState, topLeftX: number, topLeftY: num
 	gameState.player.hand.push(picked)
 	gameState.player.piecePickedUp = picked.id
   picked.isPlaced = false
+  gameState.towers = gameState.towers.filter(tower=>tower.pieceId!=picked.id)
   gameState.grid.forEach((row,rowidx)=>{
     row.forEach((col, colidx) => {
       if(gameState.grid[colidx][rowidx].occupiedBy===picked.id) gameState.grid[colidx][rowidx].type= 'empty'

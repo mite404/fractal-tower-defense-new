@@ -10,6 +10,7 @@ import type { GameState } from "../type";
 import { addInput } from "../input";
 
 let text: BitmapText | null = null;
+let textRect: Graphics | null = null
 let pathText: BitmapText | null = null;
 export async function initUI(app: Application): Promise<void> {
 	await Assets.load(
@@ -36,7 +37,7 @@ export async function initUI(app: Application): Promise<void> {
 	});
 
 	text = new BitmapText({
-		text: "Switch Phases",
+		text: "Start Game",
 		style: {
 			fontFamily: "Custom",
 			fontSize: 20,
@@ -60,14 +61,14 @@ export async function initUI(app: Application): Promise<void> {
 	});
 	app.stage.addChild(pathText);
 
-	const textRect = new Graphics();
+	textRect = new Graphics();
 
 	textRect.rect(text.x, text.y, text.width, text.height);
 	textRect.fill("#762222ff");
 	textRect.stroke({ width: 2, color: "#FFD600" });
 	textRect.eventMode = "static";
-	//app.stage.addChild(textRect);
-	//app.stage.addChild(text);
+	app.stage.addChild(textRect);
+	app.stage.addChild(text);
 
 	textRect.on("pointertap", (e) => {
 		console.log(e, "button clicked");
@@ -77,6 +78,7 @@ export async function initUI(app: Application): Promise<void> {
 
 export function updateUI(gameState: GameState) {
 	if (!text || !pathText) return;
-	text.text = gameState.phase;
+	textRect.visible = gameState.finalPath != null
+	text.visible = gameState.finalPath != null;
 	pathText.visible = gameState.finalPath != null;
 }

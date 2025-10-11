@@ -6,7 +6,7 @@ import {
   TilingSprite,
 } from "pixi.js";
 import { type GameState, createEmptyGrid } from "../type";
-import { enemyDummyTexture, bgTileTexture,  tileTexture, towerTexture, pathTexture, treeBGTexture } from "./textures";
+import { enemyDummyTexture, bgTileTexture,  tileTexture, towerTexture, pathTexture, treeBGTexture, finalTexture } from "./textures";
 import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
@@ -18,13 +18,14 @@ let displayBgTileSprite: Sprite;
 let displayEnemy: Container;
 let tower: Container
 let path: Container
+let final: Container
 let tree: Container
 export let board: Container;
 const enemySprites = new Map<string, Sprite>();
 const towerSprites = new Map<string, Sprite>();
 const pathSprites = new Map<string, Sprite>();
 const finalSprites = new Map<string, Sprite>();
-const treeSprites = new Map<string, Sprite>();
+
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   // TODO: pull out any init stuff from the render function and put it in here.
@@ -133,7 +134,13 @@ export function renderBoard(gameState: GameState): void {
     row.forEach((cell, colIdx) => {
       const square = displayGrid[rowIdx][colIdx];
       if (gameState.finalPath?.includes(cell)) {
-        square.tint = 0xffff00;
+                  final = new Container()
+          const finalSprite = new Sprite({ texture: finalTexture, height: 60, width: 60 })
+          finalSprite.position.x = colIdx * 60
+          finalSprite.position.y = rowIdx * 60
+          finalSprite.eventMode = 'none'
+          app.stage.addChild(finalSprite)
+          finalSprites.set(`${colIdx}-${rowIdx}`, finalSprite)
       } else if (cell.type === "path") {
         if (!pathSprites.get(`${colIdx}-${rowIdx}`)) {
           path = new Container()

@@ -11,6 +11,7 @@ import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
 import { initUI, updateUI } from "./renderUI.ts";
+import { GameCanvas } from "../GameCanvas";
 
 let app: Application;
 let displayGrid: Graphics[][];
@@ -126,6 +127,20 @@ export function render(gameState: GameState) {
   // render projectiles
 
   return app;
+}
+
+function isSpawn(gameState: GameState, cell: Cell): boolean {
+	if (cell.x === gameState.spawn.x && cell.y === gameState.spawn.y) {
+		return true;
+	}
+	return false;
+}
+
+function isExit(gameState: GameState, cell: Cell): boolean {
+	if (cell.x === gameState.exit.x && cell.y === gameState.exit.y) {
+		return true;
+	}
+	return false;
 }
 
 export function renderBoard(gameState: GameState): void {

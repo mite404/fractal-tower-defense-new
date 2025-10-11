@@ -124,6 +124,9 @@ function buildPhase(inputs: InputEvent[], gameState: GameState) {
 		gameState.grid[0][0],
 		gameState.grid[9][9]
 	);
+	if (gameState.grid[0][0].type != "path") {
+		gameState.finalPath = null;
+	}
 }
 
 function handleButtonClick(event: ButtonClick, gameState: GameState) {
@@ -170,41 +173,38 @@ function updateGridWithClicks(
 	cellClickEvent: CellClick
 ): void {
 	if (gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].occupiedBy) {
-		pickupPiece(gameState,cellClickEvent.cellX,cellClickEvent.cellY)
-
+		pickupPiece(gameState, cellClickEvent.cellX, cellClickEvent.cellY);
 	} else {
-	if (
-		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
-		"path"
-	) {
-		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type =
-			"tower";
-		const newTower = defaultTower(`test-${Math.random() * 1000}`);
-		newTower.position = {
-			x: cellClickEvent.cellX,
-			y: cellClickEvent.cellY,
-		};
-		gameState.towers.push(newTower);
-		console.log("create tower");
-	} else if (
-		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
-		"empty"
-	) {
-		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type =
-			"path";
-		console.log("create path");
-	} else if (
-		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
-		"tower"
-	) {
-		gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type =
-			"empty";
-		console.log("reset to empty");
+		if (
+			gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
+			"path"
+		) {
+			gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type =
+				"tower";
+			const newTower = defaultTower(`test-${Math.random() * 1000}`);
+			newTower.position = {
+				x: cellClickEvent.cellX,
+				y: cellClickEvent.cellY,
+			};
+			gameState.towers.push(newTower);
+			console.log("create tower");
+		} else if (
+			gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
+			"empty"
+		) {
+			gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type =
+				"path";
+			console.log("create path");
+		} else if (
+			gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type ==
+			"tower"
+		) {
+			gameState.grid[cellClickEvent.cellX][cellClickEvent.cellY].type =
+				"empty";
+			console.log("reset to empty");
+		}
 	}
 }
-}		
-	
-
 
 function handlePiecePickedUp(gameState: GameState, input: PiecePickedUp) {
 	if (gameState.player.piecePickedUp) {

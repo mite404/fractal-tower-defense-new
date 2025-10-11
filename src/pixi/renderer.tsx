@@ -6,7 +6,7 @@ import {
   TilingSprite,
 } from "pixi.js";
 import { type GameState, createEmptyGrid } from "../type";
-import { enemyDummyTexture, bgTileTexture, TilingTexture, tileTexture, towerTexture, pathTexture } from "./textures";
+import { enemyDummyTexture, bgTileTexture,  tileTexture, towerTexture, pathTexture, treeBGTexture } from "./textures";
 import { loadTextures } from "./textures.ts";
 import { renderInventory } from "./inventoryRender.tsx";
 import { addInput } from "../input.ts";
@@ -18,10 +18,13 @@ let displayBgTileSprite: Sprite;
 let displayEnemy: Container;
 let tower: Container
 let path: Container
+let tree: Container
 export let board: Container;
 const enemySprites = new Map<string, Sprite>();
 const towerSprites = new Map<string, Sprite>();
 const pathSprites = new Map<string, Sprite>();
+const finalSprites = new Map<string, Sprite>();
+const treeSprites = new Map<string, Sprite>();
 
 export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   // TODO: pull out any init stuff from the render function and put it in here.
@@ -32,7 +35,7 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
 
   // Initialize the application
   await app.init({
-    background: "#4C4C4C",
+    background: "#4c4c4cff",
     canvas,
     resizeTo: window,
   });
@@ -49,11 +52,12 @@ export async function initApp(canvas: HTMLCanvasElement): Promise<Application> {
   const tilingSprite = new TilingSprite(tileTexture)
   tilingSprite.width = 600
   tilingSprite.height = 600
-  tilingSprite.tileScale = { x: .5, y: .5 }
+  tilingSprite.tileScale = { x: .3, y: .3 }
+
 
   app.ticker.add(() => {
-    tilingSprite.tilePosition.x += -.2
-    tilingSprite.tilePosition.y += -.1
+    tilingSprite.tilePosition.x += Math.random() * .5
+    tilingSprite.tilePosition.y += Math.random() * .5
   })
   app.stage.addChild(tilingSprite)
 
@@ -124,6 +128,7 @@ export function render(gameState: GameState) {
 }
 
 export function renderBoard(gameState: GameState): void {
+
   gameState.grid.forEach((row, rowIdx) => {
     row.forEach((cell, colIdx) => {
       const square = displayGrid[rowIdx][colIdx];
@@ -139,8 +144,6 @@ export function renderBoard(gameState: GameState): void {
           app.stage.addChild(pathSprite)
           pathSprites.set(`${colIdx}-${rowIdx}`, pathSprite)
         }
-
-        square.tint = 0xff0000;
       } else if (cell.type === "tower") {
         if (!pathSprites.get(`${colIdx}-${rowIdx}`)) {
           path = new Container()
@@ -161,7 +164,6 @@ export function renderBoard(gameState: GameState): void {
           towerSprites.set(`${colIdx}-${rowIdx}`, towerSprite)
         }
       } else if (cell.type === "empty") {
-        square.tint = 0xffffff;
         const towerSprite = towerSprites.get(`${colIdx}-${rowIdx}`)
         if (towerSprite) {
           towerSprite.destroy()
@@ -172,6 +174,7 @@ export function renderBoard(gameState: GameState): void {
           pathSprite.destroy()
           pathSprites.delete(`${colIdx}-${rowIdx}`)
         }
+
       }
     });
   });

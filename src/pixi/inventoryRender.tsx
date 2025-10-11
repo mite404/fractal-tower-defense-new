@@ -1,14 +1,19 @@
-import { Graphics, Container, Application, type PointData, Sprite } from "pixi.js";
+import { Graphics, Container, Application, type PointData, Sprite, path } from "pixi.js";
 import type { GameState, Piece } from "../type";
 import { addInput } from "../input";
+import { pathTexture, towerTexture } from "./textures";
 
 let inventory: Container;
+let path: Container
+let tower: Container
 let mousePos: PointData;
 let xOffset = 750
 let yStart = 20
 let spacing = 70
 let maxOffSetx = 0
 const pieceSet = new Map<string, Container>();
+const towerSprites = new Map<string, Sprite>();
+const pathSprites = new Map<string, Sprite>();
 
 export function renderInventory(app: Application, gameState: GameState): void {
   if (!inventory) {
@@ -36,7 +41,7 @@ function renderAllPieces(
         yStart = -250
         xOffset = maxOffSetx
       }
-      const pieceContainer = createPieceContainer(pieces.indexOf(piece), xOffset, yStart, spacing)
+      const pieceContainer = createPieceContainer(piece, pieces.indexOf(piece), xOffset, yStart, spacing)
       maxOffSetx = Math.max(pieceContainer.width + maxOffSetx, maxOffSetx) + 250
       yStart = pieceContainer.height + yStart + spacing
 
@@ -47,27 +52,40 @@ function renderAllPieces(
         row.forEach((cell, colIdx) => {
           if (cell.type === "empty") return;
 
-          const cellGraphics = new Graphics();
-
-          let color;
           if (cell.type === "tower") {
-            color = 0x4a90e2; // Blue
-          } else if (cell.type === "path") {
-            color = 0x8b6f47; // Brown
-          } else {
-            color = 0x666666;
+            if (!pathSprites.get(`${piece.id}-${colIdx}-${rowidx}`)) {
+            const pathSprite = new Sprite({ texture: pathTexture, height: 60, width: 60 })
+            pathSprite.position.x = colIdx * 60
+            pathSprite.position.y = rowidx * 60
+            pathSprite.eventMode = 'passive'
+            pieceContainer.addChild(pathSprite)
+            pathSprites.set(`${piece.id}-${colIdx}-${rowidx}`, pathSprite)
           }
+          if (!towerSprites.get(`${piece.id}-${colIdx}-${rowidx}`)) {
+            const towerSprite = new Sprite({ texture: towerTexture, height: 60, width: 60 })
+            towerSprite.position.x = colIdx * 60
+            towerSprite.position.y = rowidx * 60
+            towerSprite.eventMode = 'passive'
+            pieceContainer.addChild(towerSprite)
+            towerSprites.set(`${piece.id}-${colIdx}-${rowidx}`, towerSprite)
+          }
+          } else if (cell.type === "path") {
+                        if (!pathSprites.get(`${piece.id}-${colIdx}-${rowidx}`)) {
+            const pathSprite = new Sprite({ texture: pathTexture, height: 60, width: 60 })
+            pathSprite.position.x = colIdx * 60
+            pathSprite.position.y = rowidx * 60
+            pathSprite.eventMode = 'passive'
+            pieceContainer.addChild(pathSprite)
+            pathSprites.set(`${piece.id}-${colIdx}-${rowidx}`, pathSprite)
+          }
+          } 
 
-          cellGraphics.rect(colIdx * 60, rowidx * 60, 60, 60);
-          cellGraphics.fill(color);
-          cellGraphics.stroke({ width: 1, color: 0x333333 });
-
-
-          pieceContainer.addChild(cellGraphics);
           pieceSet.set(piece.id, pieceContainer)
         });
       });
+      
       pieceContainer.eventMode = "static";
+      
       pieceContainer.cursor = "grab";
 
       pieceContainer.on("pointerdown", (e) => {
@@ -132,14 +150,13 @@ function renderAllPieces(
 }
 
 function createPieceContainer(
-  //Add texture: Sprite,
+  piece:Piece,
   index: number,
   xOffset = 750,
   yStart = 50,
   spacing = 70
 ): Container {
   const pieceContainer = new Container();
-  //Add Sprite here
   pieceContainer.x = xOffset;
   pieceContainer.y = yStart + index * spacing;
 

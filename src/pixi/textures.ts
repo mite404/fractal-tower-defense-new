@@ -6,6 +6,8 @@ export let enemyDummyTexture: Texture
 export let tileTexture: Texture
 export let towerTexture: Texture
 export let pathTexture: Texture
+export let finalTexture: Texture
+export let treeBGTexture: Texture
 
 
 export async function loadTextures() {
@@ -14,4 +16,7 @@ export async function loadTextures() {
   tileTexture = await Assets.load('./images/dune.png')
   towerTexture = await Assets.load('./images/Tower_Blue.png')
   pathTexture = await Assets.load('./images/path.png')
+  finalTexture = await Assets.load('./images/final.png')
+
+
 }
